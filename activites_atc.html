@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activités ATC — Escape Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #060810;
+  min-height: 100vh;
+  font-family: 'Cinzel', serif;
+  overflow-x: hidden;
+}
+
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star { position:absolute; border-radius:50%; background:white; animation:twinkle var(--d) ease-in-out infinite var(--dl); }
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+
+.wrapper {
+  position: relative; z-index: 5;
+  max-width: 750px; margin: 0 auto;
+  padding: 30px 20px 60px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 25px;
+}
+
+/* ── HEADER ── */
+.act-header { text-align: center; width: 100%; }
+.act-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 18px; border-radius: 20px; margin-bottom: 12px;
+  font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+}
+.act-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(18px, 4vw, 28px); font-weight: 900;
+  margin-bottom: 8px;
+}
+.act-subtitle {
+  font-family: 'Crimson Text', serif;
+  font-size: 15px; font-style: italic;
+  color: rgba(210,200,180,0.7); line-height: 1.6;
+}
+
+/* ── PROGRESS ── */
+.progress-wrap { width: 100%; }
+.progress-top {
+  display: flex; justify-content: space-between;
+  font-size: 9px; letter-spacing: 3px;
+  color: rgba(255,255,255,0.3); margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.progress-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+
+/* ── QUESTION CARD ── */
+.question-card {
+  width: 100%;
+  background: rgba(10,8,20,0.92);
+  border-radius: 12px; padding: 28px;
+  display: flex; flex-direction: column; gap: 20px;
+  animation: cardIn 0.5s ease forwards;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+
+.q-number {
+  font-size: 9px; letter-spacing: 4px;
+  text-transform: uppercase; opacity: 0.4;
+}
+.q-type-badge {
+  display: inline-block; padding: 3px 12px;
+  border-radius: 12px; font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.q-text {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(17px, 3vw, 22px);
+  color: rgba(235,225,205,0.95); line-height: 1.6;
+}
+.q-text strong { font-style: normal; }
+
+/* ── QCM OPTIONS ── */
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  cursor: pointer; transition: all 0.25s ease;
+  font-family: 'Crimson Text', serif;
+  font-size: 16px; color: rgba(210,200,180,0.9);
+}
+.option:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); transform: translateX(4px); }
+.option.correct { border-color: #44dd88 !important; background: rgba(68,221,136,0.1) !important; color: #44dd88 !important; }
+.option.wrong { border-color: #ff4422 !important; background: rgba(255,68,34,0.08) !important; color: #ff6644 !important; }
+.option.disabled { pointer-events: none; opacity: 0.5; }
+.opt-letter {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  flex-shrink: 0; border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+}
+
+/* ── VRAI/FAUX ── */
+.tf-buttons { display: flex; gap: 15px; justify-content: center; }
+.tf-btn {
+  flex: 1; max-width: 200px; padding: 18px;
+  border-radius: 10px; border: 2px solid;
+  cursor: pointer; font-family: 'Cinzel', serif;
+  font-size: 16px; letter-spacing: 2px;
+  transition: all 0.25s ease; text-align: center;
+}
+.tf-btn:hover { transform: translateY(-3px); }
+.tf-true { border-color: rgba(68,221,136,0.4); background: rgba(68,221,136,0.08); color: #44dd88; }
+.tf-false { border-color: rgba(255,68,34,0.4); background: rgba(255,68,34,0.08); color: #ff6644; }
+.tf-true:hover { background: rgba(68,221,136,0.2); box-shadow: 0 8px 25px rgba(68,221,136,0.2); }
+.tf-false:hover { background: rgba(255,68,34,0.15); box-shadow: 0 8px 25px rgba(255,68,34,0.2); }
+.tf-btn.correct { background: rgba(68,221,136,0.25) !important; border-color: #44dd88 !important; }
+.tf-btn.wrong { background: rgba(255,68,34,0.2) !important; border-color: #ff4422 !important; opacity: 0.6; }
+
+/* ── DRAG & DROP ── */
+.drag-area { display: flex; gap: 15px; flex-wrap: wrap; }
+.drag-column {
+  flex: 1; min-width: 150px;
+  background: rgba(255,255,255,0.03);
+  border: 1px dashed rgba(255,255,255,0.1);
+  border-radius: 10px; padding: 15px;
+  min-height: 200px; transition: all 0.2s ease;
+}
+.drag-column.drag-over { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06); }
+.drag-column.correct-col { border-color: rgba(68,221,136,0.5) !important; background: rgba(68,221,136,0.05) !important; }
+.drag-column.wrong-col { border-color: rgba(255,68,34,0.5) !important; background: rgba(255,68,34,0.05) !important; }
+.col-title {
+  font-size: 10px; letter-spacing: 3px;
+  text-transform: uppercase; margin-bottom: 10px;
+  padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+}
+.drag-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.drag-item {
+  padding: 8px 14px; border-radius: 6px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: grab; font-family: 'Crimson Text', serif;
+  font-size: 14px; color: rgba(220,210,190,0.9);
+  transition: all 0.2s ease; user-select: none;
+}
+.drag-item:hover { background: rgba(255,255,255,0.12); transform: scale(1.03); }
+.drag-item.dragging { opacity: 0.4; cursor: grabbing; }
+.drag-source { min-height: 80px; }
+
+/* ── INTRUS ── */
+.intrus-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr));
+  gap: 10px;
+}
+.intrus-item {
+  padding: 14px 16px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer; text-align: center;
+  font-family: 'Crimson Text', serif;
+  font-size: 15px; color: rgba(220,210,190,0.9);
+  transition: all 0.25s ease;
+}
+.intrus-item:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); transform: scale(1.03); }
+.intrus-item.correct { border-color: #44dd88; background: rgba(68,221,136,0.12); color: #44dd88; }
+.intrus-item.wrong { border-color: #ff4422; background: rgba(255,68,34,0.08); color: #ff6644; }
+
+/* ── FEEDBACK ── */
+.q-feedback {
+  padding: 12px 16px; border-radius: 8px;
+  font-family: 'Crimson Text', serif;
+  font-size: 15px; line-height: 1.6;
+  display: none;
+}
+.q-feedback.show { display: block; animation: feedIn 0.3s ease; }
+@keyframes feedIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.q-feedback.correct-fb { background: rgba(68,221,136,0.1); border: 1px solid rgba(68,221,136,0.3); color: #88ffbb; }
+.q-feedback.wrong-fb { background: rgba(255,68,34,0.08); border: 1px solid rgba(255,68,34,0.2); color: #ff9980; }
+
+/* ── NEXT BUTTON ── */
+.next-btn {
+  padding: 14px 35px; border-radius: 6px; border: none;
+  cursor: pointer; font-family: 'Cinzel', serif;
+  font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.3s ease; display: none;
+}
+.next-btn.show { display: block; animation: feedIn 0.3s ease; }
+.next-btn:hover { transform: translateY(-3px); }
+
+/* ── SCORE ── */
+.score-display {
+  font-size: 10px; letter-spacing: 3px;
+  color: rgba(255,255,255,0.3); text-transform: uppercase;
+}
+
+/* ── CODE REVEAL ── */
+#code-reveal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 25px; opacity: 0; pointer-events: none;
+  transition: opacity 0.8s ease;
+  padding: 20px;
+}
+#code-reveal.active { opacity: 1; pointer-events: all; }
+
+.reveal-icon { font-size: 70px; animation: revealFloat 2s ease-in-out infinite; }
+@keyframes revealFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+.reveal-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(18px,4vw,28px); text-align: center;
+}
+.reveal-subtitle {
+  font-family: 'Crimson Text', serif;
+  font-size: 16px; font-style: italic;
+  color: rgba(210,200,180,0.7); text-align: center;
+  max-width: 450px; line-height: 1.7;
+}
+
+.code-box {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  background: rgba(0,0,0,0.6); border-radius: 12px;
+  padding: 25px 40px; border: 1px solid;
+}
+.code-box-label {
+  font-size: 9px; letter-spacing: 5px;
+  text-transform: uppercase; opacity: 0.5;
+}
+.code-value {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(28px,6vw,48px); font-weight: 900;
+  letter-spacing: 8px; animation: codeGlow 2s ease-in-out infinite;
+}
+@keyframes codeGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+
+.code-hint {
+  font-family: 'Crimson Text', serif;
+  font-size: 13px; font-style: italic;
+  opacity: 0.5; margin-top: 5px;
+}
+
+.reveal-btn {
+  padding: 16px 40px; border-radius: 6px; border: none;
+  cursor: pointer; font-family: 'Cinzel', serif;
+  font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.3s ease; text-decoration: none;
+  display: inline-block;
+}
+.reveal-btn:hover { transform: translateY(-3px); }
+
+/* ── THEMES ── */
+.theme-blue { background: radial-gradient(ellipse at 30% 30%, rgba(20,50,90,0.4) 0%, #060810 70%); }
+.theme-blue .act-badge { background: rgba(74,179,244,0.1); border: 1px solid rgba(74,179,244,0.3); color: #7dd3f8; }
+.theme-blue .act-title { color: #7dd3f8; text-shadow: 0 0 20px rgba(74,179,244,0.4); }
+.theme-blue .progress-fill { background: linear-gradient(90deg,#4ab3f4,#7dd3f8); }
+.theme-blue .question-card { border: 1px solid rgba(74,179,244,0.12); }
+.theme-blue .q-type-badge { background: rgba(74,179,244,0.1); border: 1px solid rgba(74,179,244,0.3); color: #7dd3f8; }
+.theme-blue .next-btn { background: linear-gradient(135deg,rgba(74,179,244,0.25),rgba(74,179,244,0.1)); border: 1px solid rgba(74,179,244,0.5); color: #7dd3f8; }
+.theme-blue #code-reveal { background: radial-gradient(ellipse,rgba(10,30,60,0.97),rgba(2,4,15,0.99)); }
+.theme-blue .reveal-title { color: #7dd3f8; }
+.theme-blue .code-box { border-color: rgba(74,179,244,0.4); }
+.theme-blue .code-value { color: #7dd3f8; text-shadow: 0 0 30px rgba(74,179,244,0.6); }
+.theme-blue .reveal-btn { background: linear-gradient(135deg,rgba(74,179,244,0.3),rgba(74,179,244,0.1)); border: 1px solid rgba(74,179,244,0.6); color: #7dd3f8; }
+
+.theme-purple { background: radial-gradient(ellipse at 30% 30%, rgba(60,20,100,0.4) 0%, #060810 70%); }
+.theme-purple .act-badge { background: rgba(180,100,255,0.1); border: 1px solid rgba(180,100,255,0.3); color: #d4a0ff; }
+.theme-purple .act-title { color: #d4a0ff; text-shadow: 0 0 20px rgba(180,100,255,0.4); }
+.theme-purple .progress-fill { background: linear-gradient(90deg,#b464ff,#d4a0ff); }
+.theme-purple .question-card { border: 1px solid rgba(180,100,255,0.12); }
+.theme-purple .q-type-badge { background: rgba(180,100,255,0.1); border: 1px solid rgba(180,100,255,0.3); color: #d4a0ff; }
+.theme-purple .next-btn { background: linear-gradient(135deg,rgba(180,100,255,0.25),rgba(180,100,255,0.1)); border: 1px solid rgba(180,100,255,0.5); color: #d4a0ff; }
+.theme-purple #code-reveal { background: radial-gradient(ellipse,rgba(30,10,60,0.97),rgba(5,2,15,0.99)); }
+.theme-purple .reveal-title { color: #d4a0ff; }
+.theme-purple .code-box { border-color: rgba(180,100,255,0.4); }
+.theme-purple .code-value { color: #d4a0ff; text-shadow: 0 0 30px rgba(180,100,255,0.6); }
+.theme-purple .reveal-btn { background: linear-gradient(135deg,rgba(180,100,255,0.3),rgba(180,100,255,0.1)); border: 1px solid rgba(180,100,255,0.6); color: #d4a0ff; }
+
+.theme-gold { background: radial-gradient(ellipse at 30% 30%, rgba(80,40,10,0.4) 0%, #060810 70%); }
+.theme-gold .act-badge { background: rgba(201,145,61,0.1); border: 1px solid rgba(201,145,61,0.3); color: #f0c97a; }
+.theme-gold .act-title { color: #f0c97a; text-shadow: 0 0 20px rgba(201,145,61,0.4); }
+.theme-gold .progress-fill { background: linear-gradient(90deg,#c9913d,#f0c97a); }
+.theme-gold .question-card { border: 1px solid rgba(201,145,61,0.12); }
+.theme-gold .q-type-badge { background: rgba(201,145,61,0.1); border: 1px solid rgba(201,145,61,0.3); color: #f0c97a; }
+.theme-gold .next-btn { background: linear-gradient(135deg,rgba(201,145,61,0.25),rgba(201,145,61,0.1)); border: 1px solid rgba(201,145,61,0.5); color: #f0c97a; }
+.theme-gold #code-reveal { background: radial-gradient(ellipse,rgba(40,20,5,0.97),rgba(5,3,1,0.99)); }
+.theme-gold .reveal-title { color: #f0c97a; }
+.theme-gold .code-box { border-color: rgba(201,145,61,0.4); }
+.theme-gold .code-value { color: #f0c97a; text-shadow: 0 0 30px rgba(201,145,61,0.6); }
+.theme-gold .reveal-btn { background: linear-gradient(135deg,rgba(201,145,61,0.3),rgba(201,145,61,0.1)); border: 1px solid rgba(201,145,61,0.6); color: #f0c97a; }
+
+.theme-teal { background: radial-gradient(ellipse at 30% 30%, rgba(0,60,50,0.4) 0%, #060810 70%); }
+.theme-teal .act-badge { background: rgba(0,200,180,0.1); border: 1px solid rgba(0,200,180,0.3); color: #00e8d0; }
+.theme-teal .act-title { color: #00e8d0; text-shadow: 0 0 20px rgba(0,200,180,0.4); }
+.theme-teal .progress-fill { background: linear-gradient(90deg,#00c8b4,#00e8d0); }
+.theme-teal .question-card { border: 1px solid rgba(0,200,180,0.12); }
+.theme-teal .q-type-badge { background: rgba(0,200,180,0.1); border: 1px solid rgba(0,200,180,0.3); color: #00e8d0; }
+.theme-teal .next-btn { background: linear-gradient(135deg,rgba(0,200,180,0.25),rgba(0,200,180,0.1)); border: 1px solid rgba(0,200,180,0.5); color: #00e8d0; }
+.theme-teal #code-reveal { background: radial-gradient(ellipse,rgba(0,35,30,0.97),rgba(0,5,5,0.99)); }
+.theme-teal .reveal-title { color: #00e8d0; }
+.theme-teal .code-box { border-color: rgba(0,200,180,0.4); }
+.theme-teal .code-value { color: #00e8d0; text-shadow: 0 0 30px rgba(0,200,180,0.6); }
+.theme-teal .reveal-btn { background: linear-gradient(135deg,rgba(0,200,180,0.3),rgba(0,200,180,0.1)); border: 1px solid rgba(0,200,180,0.6); color: #00e8d0; }
+
+.theme-red { background: radial-gradient(ellipse at 30% 30%, rgba(80,10,10,0.4) 0%, #060810 70%); }
+.theme-red .act-badge { background: rgba(255,100,100,0.1); border: 1px solid rgba(255,100,100,0.3); color: #ffb480; }
+.theme-red .act-title { color: #ffb480; text-shadow: 0 0 20px rgba(255,100,100,0.4); }
+.theme-red .progress-fill { background: linear-gradient(90deg,#ff6464,#ffb480); }
+.theme-red .question-card { border: 1px solid rgba(255,100,100,0.12); }
+.theme-red .q-type-badge { background: rgba(255,100,100,0.1); border: 1px solid rgba(255,100,100,0.3); color: #ffb480; }
+.theme-red .next-btn { background: linear-gradient(135deg,rgba(255,100,100,0.25),rgba(255,100,100,0.1)); border: 1px solid rgba(255,100,100,0.5); color: #ffb480; }
+.theme-red #code-reveal { background: radial-gradient(ellipse,rgba(40,5,5,0.97),rgba(5,1,1,0.99)); }
+.theme-red .reveal-title { color: #ffb480; }
+.theme-red .code-box { border-color: rgba(255,100,100,0.4); }
+.theme-red .code-value { color: #ffb480; text-shadow: 0 0 30px rgba(255,100,100,0.6); }
+.theme-red .reveal-btn { background: linear-gradient(135deg,rgba(255,100,100,0.3),rgba(255,100,100,0.1)); border: 1px solid rgba(255,100,100,0.6); color: #ffb480; }
+</style>
+</head>
+<body>
+
+<!-- CODE REVEAL OVERLAY -->
+<div id="code-reveal">
+  <div class="reveal-icon" id="reveal-icon">🏆</div>
+  <div class="reveal-title" id="reveal-title">Énigme Résolue !</div>
+  <div class="reveal-subtitle" id="reveal-subtitle">Tu as prouvé ta maîtrise !</div>
+  <div class="code-box">
+    <div class="code-box-label">🔐 Code du portail temporel</div>
+    <div class="code-value" id="reveal-code">SAVOIR</div>
+    <div class="code-hint">Note bien ce code — tu en auras besoin pour activer le portail !</div>
+  </div>
+  <a class="reveal-btn" id="reveal-btn" href="#">🌀 Retour au Virtual Tour →</a>
+</div>
+
+<div class="wrapper" id="main-wrapper">
+  <!-- Header -->
+  <div class="act-header">
+    <div class="act-badge" id="act-badge">⚡ Mission ATC</div>
+    <div class="act-title" id="act-title">Titre de l'activité</div>
+    <div class="act-subtitle" id="act-subtitle">Description</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-top">
+      <span id="q-counter">Question 1 / 4</span>
+      <span class="score-display" id="score-display">Score : 0</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Question area -->
+  <div id="question-area" style="width:100%"></div>
+</div>
+
+<div class="stars" id="stars"></div>
+
+<script>
+// ══════════════════════════════════════
+// ACTIVITIES DATA
+// ══════════════════════════════════════
+const ACTIVITIES = {
+  0: {
+    theme: 'theme-blue',
+    badge: '🖥️ Scène 0 · Salle de Contrôle',
+    title: 'Code d\'Accès Temporel',
+    subtitle: 'Pour activer le portail, prouve que tu sais distinguer les 3 types de compétences !',
+    code: 'SAVOIR',
+    revealIcon: '📜',
+    revealTitle: 'Portail 1350 Déverrouillé !',
+    revealSubtitle: 'Tu maîtrises les 3 types de compétences. Le Parchemin du Savoir t\'attend en 1350 !',
+    returnUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    returnLabel: '🏰 Retour au Virtual Tour → navigue ensuite jusqu\'à la Scène 1',
+    questions: [
+      {
+        type: 'qcm',
+        typelabel: 'QCM',
+        text: '"Connaître les lois du droit du travail" — à quel type de compétence cela correspond-il ?',
+        options: ['Savoir', 'Savoir-Faire', 'Savoir-Être', 'Compétence transférable'],
+        correct: 0,
+        feedback_ok: '✅ Bravo ! Le droit du travail est une connaissance théorique = un Savoir.',
+        feedback_ko: '❌ Non ! Connaître le droit du travail, c\'est une connaissance théorique = un Savoir.'
+      },
+      {
+        type: 'tf',
+        typelabel: 'Vrai / Faux',
+        text: '"Rédiger un rapport professionnel" est un exemple de Savoir-Être.',
+        correct: false,
+        feedback_ok: '✅ Correct ! Rédiger un rapport est une compétence pratique = un Savoir-Faire.',
+        feedback_ko: '❌ Faux ! Rédiger un rapport est une action concrète = c\'est un Savoir-Faire, pas un Savoir-Être.'
+      },
+      {
+        type: 'intrus',
+        typelabel: 'Trouver l\'intrus',
+        text: 'Trouve l\'intrus parmi ces exemples de Savoir-Être :',
+        items: ['Empathie', 'Adaptabilité', 'Parler anglais', 'Gestion du stress', 'Créativité'],
+        correct: 2,
+        feedback_ok: '✅ Exact ! "Parler anglais" est un Savoir (connaissance), pas un Savoir-Être.',
+        feedback_ko: '❌ Pas tout à fait ! "Parler anglais" est un Savoir (connaissance théorique), pas un comportement.'
+      },
+      {
+        type: 'qcm',
+        typelabel: 'QCM',
+        text: 'Quelle affirmation est VRAIE concernant les compétences transférables ?',
+        options: [
+          'Elles ne s\'appliquent qu\'à un seul métier',
+          'Elles peuvent être utilisées dans différents contextes professionnels',
+          'Ce sont uniquement des diplômes',
+          'Elles ne s\'acquièrent qu\'en formation'
+        ],
+        correct: 1,
+        feedback_ok: '✅ Parfait ! Les compétences transférables sont réutilisables dans de nombreux contextes.',
+        feedback_ko: '❌ Non ! Les compétences transférables peuvent justement être utilisées dans différents contextes.'
+      }
+    ]
+  },
+
+  1: {
+    theme: 'theme-purple',
+    badge: '🏰 Scène 1 · Atelier du Magicien',
+    title: 'Le Grimoire des Savoirs',
+    subtitle: 'Aldric le magicien a besoin de toi ! Prouve que tu maîtrises les Savoirs théoriques pour libérer le Parchemin !',
+    code: 'SAVOIR-FAIRE',
+    revealIcon: '⚙️',
+    revealTitle: 'Parchemin du Savoir Trouvé !',
+    revealSubtitle: 'Excellent ! Le Grimoire est déverrouillé. Le portail vers la Fabrique de 1880 s\'ouvre !',
+    returnUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    returnLabel: '⚙️ Retour au Virtual Tour → navigue ensuite jusqu\'à la Scène 2',
+    questions: [
+      {
+        type: 'tf',
+        typelabel: 'Vrai / Faux',
+        text: 'Un Savoir est toujours une connaissance que l\'on peut apprendre dans un livre ou une formation.',
+        correct: true,
+        feedback_ok: '✅ Vrai ! Le Savoir correspond aux connaissances théoriques acquises par l\'apprentissage.',
+        feedback_ko: '❌ Si ! Les Savoirs sont bien des connaissances théoriques — histoire, langues, droit, etc.'
+      },
+      {
+        type: 'intrus',
+        typelabel: 'Trouver l\'intrus',
+        text: 'Trouve l\'intrus parmi ces exemples de Savoirs théoriques :',
+        items: ['Histoire médiévale', 'Mathématiques', 'Savoir écouter', 'Biologie', 'Droit du travail'],
+        correct: 2,
+        feedback_ok: '✅ Bravo ! "Savoir écouter" est un Savoir-Être (comportement), pas un Savoir théorique.',
+        feedback_ko: '❌ Non ! "Savoir écouter" est une qualité comportementale = Savoir-Être, pas un Savoir théorique.'
+      },
+      {
+        type: 'qcm',
+        typelabel: 'QCM',
+        text: 'Aldric maîtrise 500 sorts de magie. De quel type de compétence s\'agit-il ?',
+        options: ['Savoir-Être', 'Savoir-Faire', 'Savoir', 'Compétence transférable'],
+        correct: 2,
+        feedback_ok: '✅ Exact ! Connaître des sorts = une connaissance théorique = un Savoir !',
+        feedback_ko: '❌ Non ! Connaître des sorts, c\'est du savoir théorique = un Savoir. Les appliquer serait du Savoir-Faire.'
+      },
+      {
+        type: 'drag',
+        typelabel: 'Glisser-Déposer',
+        text: 'Classe ces compétences dans la bonne catégorie :',
+        items: ['Parler latin', 'Gérer un conflit', 'Connaître l\'alchimie', 'Faire preuve de patience'],
+        columns: ['📖 Savoir', '💙 Savoir-Être'],
+        correct: [0, 0, 0, 1],
+        feedback_ok: '✅ Parfait ! Parler latin et connaître l\'alchimie = Savoirs. Gérer un conflit et patience = Savoir-Être.',
+        feedback_ko: '❌ Pas tout à fait ! Les connaissances théoriques = Savoir. Les comportements = Savoir-Être.'
+      }
+    ]
+  },
+
+  2: {
+    theme: 'theme-gold',
+    badge: '⚙️ Scène 2 · Fabrique Industrielle',
+    title: 'Les Plans de la Machine',
+    subtitle: 'Monsieur Beaumont a besoin d\'un expert ! Prouve ta maîtrise du Savoir-Faire pour réparer les machines !',
+    code: 'SAVOIR-ETRE',
+    revealIcon: '💎',
+    revealTitle: 'Engrenage du Savoir-Faire Trouvé !',
+    revealSubtitle: 'Impressionnant ! L\'Engrenage est à toi. Le portail vers l\'Agence de l\'Avenir s\'ouvre !',
+    returnUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    returnLabel: '🚀 Retour au Virtual Tour → navigue ensuite jusqu\'à la Scène 3',
+    questions: [
+      {
+        type: 'qcm',
+        typelabel: 'QCM',
+        text: '"Souder des pièces métalliques avec précision" — de quel type de compétence s\'agit-il ?',
+        options: ['Savoir', 'Savoir-Être', 'Savoir-Faire', 'Diplôme'],
+        correct: 2,
+        feedback_ok: '✅ Exact ! Souder est une compétence pratique et opérationnelle = un Savoir-Faire.',
+        feedback_ko: '❌ Non ! Souder des pièces est une action concrète que l\'on fait = c\'est un Savoir-Faire.'
+      },
+      {
+        type: 'intrus',
+        typelabel: 'Trouver l\'intrus',
+        text: 'Trouve l\'intrus parmi ces Savoir-Faire professionnels :',
+        items: ['Conduire une machine', 'Rédiger un contrat', 'Être ponctuel', 'Utiliser un tour', 'Lire des plans'],
+        correct: 2,
+        feedback_ok: '✅ Bravo ! "Être ponctuel" est un Savoir-Être (comportement), pas un Savoir-Faire.',
+        feedback_ko: '❌ Non ! "Être ponctuel" est une qualité comportementale = Savoir-Être, pas une action technique.'
+      },
+      {
+        type: 'tf',
+        typelabel: 'Vrai / Faux',
+        text: 'Le Savoir-Faire s\'acquiert uniquement à l\'école, jamais par l\'expérience professionnelle.',
+        correct: false,
+        feedback_ok: '✅ Faux ! Le Savoir-Faire peut s\'acquérir par l\'expérience, l\'apprentissage et la pratique.',
+        feedback_ko: '❌ Si ! Le Savoir-Faire s\'acquiert aussi par l\'expérience, les stages, la pratique quotidienne.'
+      },
+      {
+        type: 'drag',
+        typelabel: 'Glisser-Déposer',
+        text: 'Classe ces compétences dans la bonne catégorie :',
+        items: ['Réparer un moteur', 'Faire preuve de rigueur', 'Programmer une machine', 'Travailler en équipe'],
+        columns: ['⚙️ Savoir-Faire', '💙 Savoir-Être'],
+        correct: [0, 1, 0, 1],
+        feedback_ok: '✅ Parfait ! Réparer et programmer = Savoir-Faire. Rigueur et travail d\'équipe = Savoir-Être.',
+        feedback_ko: '❌ Regarde bien ! Les actions techniques = Savoir-Faire. Les comportements = Savoir-Être.'
+      }
+    ]
+  },
+
+  3: {
+    theme: 'theme-teal',
+    badge: '🚀 Scène 3 · Agence de l\'Avenir',
+    title: 'Évaluation des Candidats',
+    subtitle: 'Madame Nova recrute pour l\'avenir ! Prouve que tu distingues les Savoir-Être pour obtenir le Cristal !',
+    code: 'TRANSFERT',
+    revealIcon: '🌀',
+    revealTitle: 'Cristal du Savoir-Être Trouvé !',
+    revealSubtitle: 'Extraordinaire ! Le Cristal est en ta possession. Le portail vers le Grand Livre s\'ouvre !',
+    returnUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    returnLabel: '🌀 Retour au Virtual Tour → navigue ensuite jusqu\'à la Scène 4',
+    questions: [
+      {
+        type: 'intrus',
+        typelabel: 'Trouver l\'intrus',
+        text: 'Trouve l\'intrus parmi ces Savoir-Être recherchés par les employeurs du futur :',
+        items: ['Créativité', 'Maîtriser Excel', 'Adaptabilité', 'Intelligence émotionnelle', 'Esprit d\'initiative'],
+        correct: 1,
+        feedback_ok: '✅ Exact ! "Maîtriser Excel" est un Savoir-Faire technique, pas un Savoir-Être comportemental.',
+        feedback_ko: '❌ Non ! "Maîtriser Excel" est une compétence technique = Savoir-Faire, pas un comportement.'
+      },
+      {
+        type: 'tf',
+        typelabel: 'Vrai / Faux',
+        text: 'Les Savoir-Être sont des compétences comportementales qui influencent la façon dont on travaille avec les autres.',
+        correct: true,
+        feedback_ok: '✅ Vrai ! Les Savoir-Être concernent nos attitudes, comportements et qualités relationnelles.',
+        feedback_ko: '❌ Si ! Les Savoir-Être sont bien des compétences comportementales et relationnelles.'
+      },
+      {
+        type: 'qcm',
+        typelabel: 'QCM',
+        text: 'En 2150, Mme Nova cherche un candidat "empathique et capable de gérer le stress". Il s\'agit de :',
+        options: ['Savoirs théoriques', 'Savoir-Faire techniques', 'Savoir-Être comportementaux', 'Diplômes universitaires'],
+        correct: 2,
+        feedback_ok: '✅ Parfait ! Empathie et gestion du stress sont des qualités comportementales = Savoir-Être.',
+        feedback_ko: '❌ Non ! L\'empathie et la gestion du stress sont des qualités comportementales = Savoir-Être.'
+      },
+      {
+        type: 'drag',
+        typelabel: 'Glisser-Déposer',
+        text: 'Aide Mme Nova à classer ces compétences :',
+        items: ['Autonomie', 'Parler japonais', 'Résistance au stress', 'Coder en Python'],
+        columns: ['💙 Savoir-Être', '📖 Savoir / Savoir-Faire'],
+        correct: [0, 1, 0, 1],
+        feedback_ok: '✅ Bravo ! Autonomie et résistance au stress = Savoir-Être. Langues et code = Savoir/Savoir-Faire.',
+        feedback_ko: '❌ Regarde bien ! Les comportements et attitudes = Savoir-Être. Les compétences techniques = autre chose.'
+      }
+    ]
+  },
+
+  4: {
+    theme: 'theme-red',
+    badge: '🌀 Scène 4 · Le Grand Livre',
+    title: 'Le Verrou Final',
+    subtitle: 'Les 3 artefacts sont réunis ! Une dernière épreuve pour reconstituer le Grand Livre des Compétences !',
+    code: 'GRANDLIVRE',
+    revealIcon: '🏆',
+    revealTitle: 'Mission Accomplie !',
+    revealSubtitle: 'Extraordinaire Agent Temporel ! Le Grand Livre est reconstitué. Le Maître Obscur est vaincu !',
+    returnUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    returnLabel: '🎉 Retour au Virtual Tour → Mission accomplie !',
+    questions: [
+      {
+        type: 'qcm',
+        typelabel: 'QCM',
+        text: 'Quelle est la principale caractéristique d\'une compétence transférable ?',
+        options: [
+          'Elle est spécifique à un seul métier',
+          'Elle peut être utilisée dans différents contextes et métiers',
+          'Elle s\'acquiert uniquement en école de commerce',
+          'Elle concerne uniquement les diplômes'
+        ],
+        correct: 1,
+        feedback_ok: '✅ Exact ! Une compétence transférable s\'utilise dans différents contextes professionnels.',
+        feedback_ko: '❌ Non ! La compétence transférable se distingue justement par sa réutilisabilité dans différents contextes.'
+      },
+      {
+        type: 'intrus',
+        typelabel: 'Trouver l\'intrus',
+        text: 'Parmi ces compétences, laquelle est la MOINS transférable ?',
+        items: ['Leadership', 'Utiliser le logiciel SAP v12.3', 'Communication écrite', 'Organisation', 'Résolution de problèmes'],
+        correct: 1,
+        feedback_ok: '✅ Bravo ! "Utiliser SAP v12.3" est très spécifique à un logiciel — peu transférable !',
+        feedback_ko: '❌ Non ! "Utiliser SAP v12.3" est la plus spécifique — les autres (leadership, communication...) sont transférables.'
+      },
+      {
+        type: 'tf',
+        typelabel: 'Vrai / Faux',
+        text: 'Un Savoir-Être comme "l\'adaptabilité" est une compétence transférable car elle est utile dans tous les métiers.',
+        correct: true,
+        feedback_ok: '✅ Vrai ! L\'adaptabilité est utile partout — c\'est une compétence transférable par excellence !',
+        feedback_ko: '❌ Si ! L\'adaptabilité s\'applique à tous les métiers = c\'est bien une compétence transférable.'
+      },
+      {
+        type: 'drag',
+        typelabel: 'Glisser-Déposer',
+        text: 'Classe ces compétences selon leur transférabilité :',
+        items: ['Écoute active', 'Maîtriser une machine spécifique', 'Gestion de projet', 'Parler le langage Cobol'],
+        columns: ['✅ Transférable', '⚠️ Peu transférable'],
+        correct: [0, 1, 0, 1],
+        feedback_ok: '✅ Parfait ! Écoute et gestion de projet = transférables. Machines spécifiques et Cobol = peu transférables.',
+        feedback_ko: '❌ Regarde bien ! Les compétences générales sont transférables, les très spécifiques le sont moins.'
+      }
+    ]
+  }
+};
+
+// ══════════════════════════════════════
+// ENGINE
+// ══════════════════════════════════════
+const params = new URLSearchParams(window.location.search);
+const actId = parseInt(params.get('scene') || '0');
+const act = ACTIVITIES[actId] || ACTIVITIES[0];
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+// Apply theme
+document.body.classList.add(act.theme);
+document.getElementById('act-badge').textContent = act.badge;
+document.getElementById('act-title').textContent = act.title;
+document.getElementById('act-subtitle').textContent = act.subtitle;
+
+// Code reveal setup
+document.getElementById('reveal-icon').textContent = act.revealIcon;
+document.getElementById('reveal-title').textContent = act.revealTitle;
+document.getElementById('reveal-subtitle').textContent = act.revealSubtitle;
+document.getElementById('reveal-code').textContent = act.code;
+const revealBtn = document.getElementById('reveal-btn');
+revealBtn.textContent = act.returnLabel;
+revealBtn.href = act.returnUrl;
+
+function updateProgress() {
+  const pct = (currentQ / act.questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Question ${currentQ + 1} / ${act.questions.length}`;
+  document.getElementById('score-display').textContent = `Score : ${score}`;
+}
+
+function renderQuestion() {
+  answered = false;
+  updateProgress();
+  const q = act.questions[currentQ];
+  const area = document.getElementById('question-area');
+  area.innerHTML = '';
+
+  const card = document.createElement('div');
+  card.className = 'question-card';
+
+  let html = `
+    <div>
+      <div class="q-number">Question ${currentQ + 1} sur ${act.questions.length}</div>
+      <span class="q-type-badge">${q.typelabel}</span>
+    </div>
+    <div class="q-text">${q.text}</div>
+  `;
+
+  if(q.type === 'qcm') {
+    html += `<div class="options">` + q.options.map((opt, i) =>
+      `<div class="option" id="opt-${i}" onclick="answerQCM(${i})">
+        <div class="opt-letter">${String.fromCharCode(65+i)}</div>
+        <span>${opt}</span>
+      </div>`
+    ).join('') + `</div>`;
+  }
+  else if(q.type === 'tf') {
+    html += `<div class="tf-buttons">
+      <button class="tf-btn tf-true" onclick="answerTF(true)">✅ Vrai</button>
+      <button class="tf-btn tf-false" onclick="answerTF(false)">❌ Faux</button>
+    </div>`;
+  }
+  else if(q.type === 'intrus') {
+    html += `<div class="intrus-grid">` + q.items.map((item, i) =>
+      `<div class="intrus-item" id="intrus-${i}" onclick="answerIntrus(${i})">${item}</div>`
+    ).join('') + `</div>`;
+  }
+  else if(q.type === 'drag') {
+    html += renderDrag(q);
+  }
+
+  html += `
+    <div class="q-feedback" id="q-feedback"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">
+      ${currentQ < act.questions.length - 1 ? 'Question suivante →' : 'Voir le résultat 🏆'}
+    </button>
+  `;
+
+  card.innerHTML = html;
+  area.appendChild(card);
+
+  if(q.type === 'drag') initDrag(q);
+}
+
+// ── QCM ──
+function answerQCM(idx) {
+  if(answered) return;
+  answered = true;
+  const q = act.questions[currentQ];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((o, i) => {
+    o.classList.add('disabled');
+    if(i === q.correct) o.classList.add('correct');
+    else if(i === idx && idx !== q.correct) o.classList.add('wrong');
+  });
+  showFeedback(idx === q.correct, q);
+  if(idx === q.correct) score++;
+}
+
+// ── VRAI/FAUX ──
+function answerTF(val) {
+  if(answered) return;
+  answered = true;
+  const q = act.questions[currentQ];
+  const btns = document.querySelectorAll('.tf-btn');
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = val === q.correct;
+  if(val === true) { btns[0].classList.add(isCorrect ? 'correct' : 'wrong'); if(!isCorrect) btns[1].classList.add('correct'); }
+  else { btns[1].classList.add(isCorrect ? 'correct' : 'wrong'); if(!isCorrect) btns[0].classList.add('correct'); }
+  showFeedback(isCorrect, q);
+  if(isCorrect) score++;
+}
+
+// ── INTRUS ──
+function answerIntrus(idx) {
+  if(answered) return;
+  answered = true;
+  const q = act.questions[currentQ];
+  const items = document.querySelectorAll('.intrus-item');
+  items.forEach((item, i) => {
+    item.style.pointerEvents = 'none';
+    if(i === q.correct) item.classList.add('correct');
+    else if(i === idx && idx !== q.correct) item.classList.add('wrong');
+  });
+  const isCorrect = idx === q.correct;
+  showFeedback(isCorrect, q);
+  if(isCorrect) score++;
+}
+
+// ── DRAG & DROP ──
+function renderDrag(q) {
+  return `
+    <div class="drag-area">
+      <div class="drag-column drag-source" id="col-source">
+        <div class="col-title" style="color:rgba(255,255,255,0.4)">📦 À classer</div>
+        <div class="drag-items" id="items-source">
+          ${q.items.map((item, i) => `<div class="drag-item" draggable="true" data-idx="${i}" id="drag-${i}">${item}</div>`).join('')}
+        </div>
+      </div>
+      ${q.columns.map((col, ci) => `
+        <div class="drag-column" id="col-${ci}" data-col="${ci}">
+          <div class="col-title">${col}</div>
+          <div class="drag-items" id="items-${ci}"></div>
+        </div>
+      `).join('')}
+    </div>
+    <button class="next-btn" id="validate-drag" onclick="validateDrag()" style="display:block;margin-top:10px">
+      ✅ Valider le classement
+    </button>
+  `;
+}
+
+let dragEl = null;
+function initDrag(q) {
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => { dragEl = item; item.classList.add('dragging'); });
+    item.addEventListener('dragend', e => { item.classList.remove('dragging'); });
+  });
+  document.querySelectorAll('.drag-column').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', e => {
+      e.preventDefault(); col.classList.remove('drag-over');
+      const colId = col.id;
+      const itemsContainer = col.querySelector('.drag-items');
+      if(itemsContainer && dragEl) itemsContainer.appendChild(dragEl);
+    });
+  });
+  // Touch support
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('touchstart', e => { dragEl = item; }, {passive:true});
+    item.addEventListener('touchend', e => {
+      const touch = e.changedTouches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      const col = target?.closest('.drag-column');
+      if(col) { const ic = col.querySelector('.drag-items'); if(ic && dragEl) ic.appendChild(dragEl); }
+    }, {passive:true});
+  });
+}
+
+function validateDrag() {
+  if(answered) return;
+  const q = act.questions[currentQ];
+  let allCorrect = true;
+  q.items.forEach((item, i) => {
+    const el = document.getElementById(`drag-${i}`);
+    if(!el) return;
+    const parent = el.closest('.drag-column');
+    const colIdx = parent?.dataset?.col;
+    if(colIdx === undefined && parent?.id === 'col-source') {
+      allCorrect = false; return;
+    }
+    const expected = q.correct[i];
+    const isOk = parseInt(colIdx) === expected;
+    el.style.borderColor = isOk ? '#44dd88' : '#ff4422';
+    el.style.color = isOk ? '#44dd88' : '#ff4422';
+    if(!isOk) allCorrect = false;
+  });
+  answered = true;
+  showFeedback(allCorrect, q);
+  if(allCorrect) score++;
+  document.getElementById('validate-drag').style.display = 'none';
+}
+
+// ── SHARED ──
+function showFeedback(isCorrect, q) {
+  const fb = document.getElementById('q-feedback');
+  if(fb) {
+    fb.textContent = isCorrect ? q.feedback_ok : q.feedback_ko;
+    fb.className = `q-feedback show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  }
+  const nb = document.getElementById('next-btn');
+  if(nb) nb.classList.add('show');
+}
+
+function nextQuestion() {
+  currentQ++;
+  if(currentQ >= act.questions.length) {
+    showCodeReveal();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showCodeReveal() {
+  // Sound
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523,659,784,1047,1319].forEach((f,i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f; o.type = 'sine';
+      g.gain.setValueAtTime(0.15, ctx.currentTime + i*0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.15 + 0.4);
+      o.start(ctx.currentTime + i*0.15);
+      o.stop(ctx.currentTime + i*0.15 + 0.4);
+    });
+  } catch(e) {}
+  document.getElementById('code-reveal').classList.add('active');
+}
+
+// Stars
+const s = document.getElementById('stars');
+for(let i = 0; i < 100; i++) {
+  const el = document.createElement('div');
+  el.className = 'star';
+  const sz = Math.random() < 0.15 ? 3 : Math.random() < 0.3 ? 2 : 1;
+  el.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;--o:${0.2+Math.random()*0.6}`;
+  s.appendChild(el);
+}
+
+// Init
+renderQuestion();
+</script>
+</body>
+</html>

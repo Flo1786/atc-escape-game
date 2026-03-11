@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 4 Types de Compétences</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(ellipse at 20% 30%, #1a0a2e 0%, #060810 50%, #0a1020 100%);
+  min-height: 100vh;
+  font-family: 'Crimson Text', Georgia, serif;
+  padding: 50px 20px 60px;
+  overflow-x: hidden;
+}
+
+/* Stars */
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%; background:white;
+  animation:twinkle var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+
+/* Header */
+.header {
+  text-align:center; margin-bottom:50px;
+  position:relative; z-index:5;
+}
+.header-top {
+  display:inline-flex; align-items:center; gap:10px;
+  background:rgba(201,145,61,0.1); border:1px solid rgba(201,145,61,0.3);
+  border-radius:30px; padding:5px 18px; margin-bottom:16px;
+}
+.header-top span {
+  font-family:'Cinzel',serif; font-size:9px; letter-spacing:4px;
+  color:#c9913d; text-transform:uppercase;
+}
+.dot { width:5px;height:5px;border-radius:50%;background:#4ab3f4;box-shadow:0 0 6px #4ab3f4;animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.8);opacity:0.5}}
+
+h1 {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(18px,3.5vw,32px);
+  background:linear-gradient(135deg,#8b5e00,#c9913d,#f0c97a,#c9913d,#8b5e00);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;background-size:200% auto;
+  animation:shimmer 4s ease-in-out infinite;
+  margin-bottom:10px;
+}
+@keyframes shimmer{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+
+.subtitle {
+  font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px;
+  color:rgba(201,145,61,0.5); text-transform:uppercase;
+}
+
+.hint {
+  margin-top:12px; font-size:14px; font-style:italic;
+  color:rgba(200,190,170,0.6);
+}
+.hint span { color:#4ab3f4; }
+
+/* Grid */
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+  gap:30px; max-width:1100px; margin:0 auto;
+  position:relative; z-index:5;
+}
+
+/* Flash Card */
+.card-wrap {
+  perspective:1000px; height:340px; cursor:pointer;
+  animation:cardAppear 0.6s ease forwards;
+  opacity:0; transform:translateY(30px);
+}
+.card-wrap:nth-child(1){animation-delay:0.1s}
+.card-wrap:nth-child(2){animation-delay:0.25s}
+.card-wrap:nth-child(3){animation-delay:0.4s}
+.card-wrap:nth-child(4){animation-delay:0.55s}
+@keyframes cardAppear{to{opacity:1;transform:translateY(0)}}
+
+.card-inner {
+  width:100%; height:100%;
+  transform-style:preserve-3d;
+  transition:transform 0.7s cubic-bezier(0.4,0.2,0.2,1);
+  position:relative;
+}
+.card-wrap.flipped .card-inner { transform:rotateY(180deg); }
+
+.card-front, .card-back {
+  position:absolute; inset:0;
+  backface-visibility:hidden;
+  border-radius:16px; padding:28px 24px;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center;
+}
+.card-back { transform:rotateY(180deg); justify-content:flex-start; }
+
+/* Shimmer overlay on hover */
+.card-front::after {
+  content:''; position:absolute; inset:0; border-radius:16px;
+  background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,0.05) 50%,transparent 60%);
+  opacity:0; transition:opacity 0.3s;
+}
+.card-wrap:hover .card-front::after { opacity:1; }
+
+/* ── CARD 1 SAVOIR ── */
+.c1 .card-front {
+  background:linear-gradient(145deg,#2a1f00,#3d2e00,#1a1200);
+  border:1px solid rgba(201,145,61,0.4);
+  box-shadow:0 10px 40px rgba(201,145,61,0.15), inset 0 1px 0 rgba(201,145,61,0.1);
+}
+.c1 .card-back {
+  background:linear-gradient(145deg,#3d2e00,#2a1f00,#1a1200);
+  border:1px solid rgba(201,145,61,0.5);
+  box-shadow:0 10px 40px rgba(201,145,61,0.2);
+}
+.c1 .card-wrap:hover .card-front {
+  box-shadow:0 15px 50px rgba(201,145,61,0.3);
+  border-color:rgba(201,145,61,0.7);
+}
+.c1 .icon-bg { background:rgba(201,145,61,0.15); border:2px solid rgba(201,145,61,0.4); }
+.c1 .type-name { color:#f0c97a; }
+.c1 .accent { color:#c9913d; }
+.c1 .tag { background:rgba(201,145,61,0.15); border:1px solid rgba(201,145,61,0.3); color:#f0c97a; }
+.c1 .progress-fill { background:linear-gradient(90deg,#c9913d,#f0c97a); }
+
+/* ── CARD 2 SAVOIR-FAIRE ── */
+.c2 .card-front {
+  background:linear-gradient(145deg,#1a0a00,#3a1800,#200e00);
+  border:1px solid rgba(160,80,20,0.4);
+  box-shadow:0 10px 40px rgba(160,80,20,0.15), inset 0 1px 0 rgba(200,100,30,0.1);
+}
+.c2 .card-back {
+  background:linear-gradient(145deg,#3a1800,#1a0a00,#200e00);
+  border:1px solid rgba(160,80,20,0.5);
+  box-shadow:0 10px 40px rgba(160,80,20,0.2);
+}
+.c2 .card-wrap:hover .card-front { box-shadow:0 15px 50px rgba(160,80,20,0.3); }
+.c2 .icon-bg { background:rgba(160,80,20,0.2); border:2px solid rgba(160,80,20,0.4); }
+.c2 .type-name { color:#d4803a; }
+.c2 .accent { color:#c06020; }
+.c2 .tag { background:rgba(160,80,20,0.15); border:1px solid rgba(160,80,20,0.3); color:#d4803a; }
+.c2 .progress-fill { background:linear-gradient(90deg,#c06020,#d4803a); width:60% !important; }
+
+/* ── CARD 3 SAVOIR-ÊTRE ── */
+.c3 .card-front {
+  background:linear-gradient(145deg,#001828,#002a40,#001020);
+  border:1px solid rgba(74,179,244,0.3);
+  box-shadow:0 10px 40px rgba(74,179,244,0.1), inset 0 1px 0 rgba(74,179,244,0.1);
+}
+.c3 .card-back {
+  background:linear-gradient(145deg,#002a40,#001828,#001020);
+  border:1px solid rgba(74,179,244,0.4);
+  box-shadow:0 10px 40px rgba(74,179,244,0.15);
+}
+.c3 .card-wrap:hover .card-front { box-shadow:0 15px 50px rgba(74,179,244,0.25); }
+.c3 .icon-bg { background:rgba(74,179,244,0.15); border:2px solid rgba(74,179,244,0.3); }
+.c3 .type-name { color:#7dd3f8; }
+.c3 .accent { color:#4ab3f4; }
+.c3 .tag { background:rgba(74,179,244,0.12); border:1px solid rgba(74,179,244,0.3); color:#7dd3f8; }
+.c3 .progress-fill { background:linear-gradient(90deg,#4ab3f4,#7dd3f8); width:100% !important; }
+
+/* ── CARD 4 TRANSFÉRABLES ── */
+.c4 .card-front {
+  background:linear-gradient(145deg,#0f0028,#1e0050,#0a0020);
+  border:1px solid rgba(150,100,255,0.3);
+  box-shadow:0 10px 40px rgba(150,100,255,0.1), inset 0 1px 0 rgba(150,100,255,0.1);
+}
+.c4 .card-back {
+  background:linear-gradient(145deg,#1e0050,#0f0028,#0a0020);
+  border:1px solid rgba(150,100,255,0.4);
+  box-shadow:0 10px 40px rgba(150,100,255,0.15);
+}
+.c4 .card-wrap:hover .card-front { box-shadow:0 15px 50px rgba(150,100,255,0.3); }
+.c4 .icon-bg { background:rgba(150,100,255,0.15); border:2px solid rgba(150,100,255,0.3); }
+.c4 .type-name { color:#c4a0ff; }
+.c4 .accent { color:#9664ff; }
+.c4 .tag { background:rgba(150,100,255,0.12); border:1px solid rgba(150,100,255,0.3); color:#c4a0ff; }
+.c4 .progress-fill { background:linear-gradient(90deg,#9664ff,#c4a0ff); }
+
+/* ── SHARED COMPONENTS ── */
+.icon-bg {
+  width:70px; height:70px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; margin-bottom:16px;
+  animation:iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.type-name {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(14px,2vw,18px); font-weight:700;
+  margin-bottom:6px; letter-spacing:1px;
+}
+.type-sub {
+  font-size:13px; color:rgba(200,190,170,0.6);
+  font-style:italic; margin-bottom:16px;
+}
+
+.transferability {
+  width:100%; margin-bottom:12px;
+}
+.trans-label {
+  font-family:'Cinzel',serif; font-size:8px; letter-spacing:3px;
+  text-transform:uppercase; margin-bottom:5px;
+  color:rgba(200,190,170,0.5);
+  display:flex; justify-content:space-between;
+}
+.progress-bar {
+  height:4px; background:rgba(255,255,255,0.1);
+  border-radius:2px; overflow:hidden;
+}
+.progress-fill {
+  height:100%; border-radius:2px; width:50%;
+  animation:progressGrow 1.5s ease forwards;
+}
+@keyframes progressGrow{from{width:0}}
+
+.flip-hint {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:2px; text-transform:uppercase;
+  opacity:0.4; margin-top:auto;
+  animation:hintBlink 2s ease-in-out infinite;
+}
+@keyframes hintBlink{0%,100%{opacity:0.4}50%{opacity:0.8}}
+
+/* Back face */
+.back-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:16px; font-weight:700;
+  margin-bottom:12px;
+}
+.back-def {
+  font-size:14px; line-height:1.7;
+  color:rgba(220,210,190,0.9);
+  margin-bottom:16px;
+  text-align:left; font-style:italic;
+}
+.back-examples-label {
+  font-family:'Cinzel',serif; font-size:8px;
+  letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:8px; align-self:flex-start;
+  opacity:0.6;
+}
+.tags-wrap {
+  display:flex; flex-wrap:wrap; gap:6px;
+  justify-content:flex-start; width:100%;
+}
+.tag {
+  font-size:11px; padding:3px 10px;
+  border-radius:12px; font-family:'Cinzel',serif;
+  letter-spacing:0.5px;
+}
+.back-flip-hint {
+  margin-top:auto; padding-top:12px;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:2px; text-transform:uppercase;
+  opacity:0.35; align-self:center;
+}
+
+/* Glow particles on cards */
+.glow-particle {
+  position:absolute; border-radius:50%;
+  pointer-events:none;
+  animation:glowFloat var(--gp-d) ease-in-out infinite var(--gp-dl);
+}
+@keyframes glowFloat{0%,100%{transform:translateY(0);opacity:0.3}50%{transform:translateY(-15px);opacity:0.7}}
+
+/* Footer */
+.footer {
+  text-align:center; margin-top:50px;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:3px; color:rgba(201,145,61,0.3);
+  text-transform:uppercase; position:relative; z-index:5;
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="dot"></div>
+    <span>Pédagogie — ATC Escape Game</span>
+    <div class="dot"></div>
+  </div>
+  <h1>Les 4 Types de Compétences</h1>
+  <p class="subtitle">Grand Livre des Compétences</p>
+  <p class="hint">👆 Cliquez sur une carte pour la retourner et découvrir la définition</p>
+</div>
+
+<div class="grid">
+
+  <!-- CARD 1 — SAVOIR -->
+  <div class="card-wrap c1" onclick="this.classList.toggle('flipped')">
+    <div class="card-inner">
+      <div class="card-front">
+        <div class="glow-particle" style="width:8px;height:8px;background:#f0c97a;top:20px;right:25px;--gp-d:3s;--gp-dl:0s"></div>
+        <div class="glow-particle" style="width:5px;height:5px;background:#c9913d;bottom:40px;left:20px;--gp-d:4s;--gp-dl:1s"></div>
+        <div class="icon-bg">📖</div>
+        <div class="type-name">SAVOIR</div>
+        <div class="type-sub">Connaissances théoriques</div>
+        <div class="transferability">
+          <div class="trans-label">
+            <span>Transférabilité</span>
+            <span class="accent">Souvent transférable</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+        </div>
+        <div class="flip-hint">✦ Cliquer pour découvrir ✦</div>
+      </div>
+      <div class="card-back">
+        <div class="back-title type-name">SAVOIR</div>
+        <p class="back-def">Ensemble des connaissances théoriques acquises par l'apprentissage ou l'expérience : savoirs techniques, généraux et réglementaires.</p>
+        <div class="back-examples-label accent">Exemples</div>
+        <div class="tags-wrap">
+          <span class="tag">Droit du travail</span>
+          <span class="tag">Langues étrangères</span>
+          <span class="tag">Mathématiques</span>
+          <span class="tag">Histoire</span>
+        </div>
+        <div class="back-flip-hint">↩ Cliquer pour retourner</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 2 — SAVOIR-FAIRE -->
+  <div class="card-wrap c2" onclick="this.classList.toggle('flipped')">
+    <div class="card-inner">
+      <div class="card-front">
+        <div class="glow-particle" style="width:6px;height:6px;background:#d4803a;top:25px;left:20px;--gp-d:3.5s;--gp-dl:0.5s"></div>
+        <div class="glow-particle" style="width:8px;height:8px;background:#c06020;bottom:35px;right:25px;--gp-d:4s;--gp-dl:1.5s"></div>
+        <div class="icon-bg">⚙️</div>
+        <div class="type-name">SAVOIR-FAIRE</div>
+        <div class="type-sub">Compétences opérationnelles</div>
+        <div class="transferability">
+          <div class="trans-label">
+            <span>Transférabilité</span>
+            <span class="accent">Partiellement transférable</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+        <div class="flip-hint">✦ Cliquer pour découvrir ✦</div>
+      </div>
+      <div class="card-back">
+        <div class="back-title type-name">SAVOIR-FAIRE</div>
+        <p class="back-def">Capacité à réaliser une action concrète, à mettre en pratique des connaissances. Peut être technique, organisationnel, relationnel ou méthodologique.</p>
+        <div class="back-examples-label accent">Exemples</div>
+        <div class="tags-wrap">
+          <span class="tag">Rédiger un rapport</span>
+          <span class="tag">Conduire un entretien</span>
+          <span class="tag">Utiliser un logiciel</span>
+          <span class="tag">Gérer un projet</span>
+        </div>
+        <div class="back-flip-hint">↩ Cliquer pour retourner</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 3 — SAVOIR-ÊTRE -->
+  <div class="card-wrap c3" onclick="this.classList.toggle('flipped')">
+    <div class="card-inner">
+      <div class="card-front">
+        <div class="glow-particle" style="width:7px;height:7px;background:#4ab3f4;top:20px;right:20px;--gp-d:2.5s;--gp-dl:0.2s"></div>
+        <div class="glow-particle" style="width:5px;height:5px;background:#7dd3f8;bottom:50px;left:15px;--gp-d:3.5s;--gp-dl:1s"></div>
+        <div class="icon-bg">💙</div>
+        <div class="type-name">SAVOIR-ÊTRE</div>
+        <div class="type-sub">Compétences comportementales</div>
+        <div class="transferability">
+          <div class="trans-label">
+            <span>Transférabilité</span>
+            <span class="accent">Toujours transférable</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+        <div class="flip-hint">✦ Cliquer pour découvrir ✦</div>
+      </div>
+      <div class="card-back">
+        <div class="back-title type-name">SAVOIR-ÊTRE</div>
+        <p class="back-def">Qualités humaines et comportementales qui déterminent la manière d'agir dans un contexte professionnel et relationnel.</p>
+        <div class="back-examples-label accent">Exemples</div>
+        <div class="tags-wrap">
+          <span class="tag">Empathie</span>
+          <span class="tag">Adaptabilité</span>
+          <span class="tag">Communication</span>
+          <span class="tag">Rigueur</span>
+          <span class="tag">Créativité</span>
+          <span class="tag">Gestion du stress</span>
+        </div>
+        <div class="back-flip-hint">↩ Cliquer pour retourner</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 4 — TRANSFÉRABLES -->
+  <div class="card-wrap c4" onclick="this.classList.toggle('flipped')">
+    <div class="card-inner">
+      <div class="card-front">
+        <div class="glow-particle" style="width:8px;height:8px;background:#c4a0ff;top:18px;left:22px;--gp-d:3s;--gp-dl:0.8s"></div>
+        <div class="glow-particle" style="width:5px;height:5px;background:#9664ff;bottom:45px;right:18px;--gp-d:4s;--gp-dl:0s"></div>
+        <div class="icon-bg">⭐</div>
+        <div class="type-name">COMPÉTENCES<br>TRANSFÉRABLES</div>
+        <div class="type-sub">Réutilisables dans tout contexte</div>
+        <div class="transferability">
+          <div class="trans-label">
+            <span>Transférabilité</span>
+            <span class="accent">Par définition : 100%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+        <div class="flip-hint">✦ Cliquer pour découvrir ✦</div>
+      </div>
+      <div class="card-back">
+        <div class="back-title type-name">COMPÉTENCES<br>TRANSFÉRABLES</div>
+        <p class="back-def">Compétences acquises dans un contexte et réutilisables dans un autre, quelle que soit l'activité professionnelle ou le secteur.</p>
+        <div class="back-examples-label accent">Exemples</div>
+        <div class="tags-wrap">
+          <span class="tag">Organisation</span>
+          <span class="tag">Leadership</span>
+          <span class="tag">Résolution de problèmes</span>
+          <span class="tag">Communication écrite</span>
+        </div>
+        <div class="back-flip-hint">↩ Cliquer pour retourner</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">✦ ATC — Agence Temporelle des Compétences ✦ Grand Livre des Compétences ✦</div>
+
+<script>
+const s = document.getElementById('stars');
+for(let i=0;i<100;i++){
+  const el=document.createElement('div');
+  el.className='star';
+  const sz=Math.random()<0.15?3:Math.random()<0.3?2:1;
+  el.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;--o:${0.2+Math.random()*0.6}`;
+  s.appendChild(el);
+}
+</script>
+</body>
+</html>

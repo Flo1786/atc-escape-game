@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portail Temporel — ATC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #060810;
+  min-height: 100vh;
+  font-family: 'Cinzel', serif;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%; background:white;
+  animation:twinkle var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+
+/* Scene selector buttons — hidden in production */
+.scene-selector {
+  position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; z-index: 100; flex-wrap: wrap;
+  justify-content: center;
+}
+.sel-btn {
+  padding: 6px 12px; border-radius: 4px; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px;
+  border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);
+  background: rgba(0,0,0,0.5); transition: all 0.2s ease;
+}
+.sel-btn:hover { border-color: rgba(255,255,255,0.5); color: white; }
+.sel-btn.active { border-color: #f0c97a; color: #f0c97a; }
+
+/* Portal wrapper */
+.portal-wrapper {
+  position: relative; z-index: 5;
+  width: 100%; max-width: 500px;
+  padding: 20px;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 25px;
+  animation: fadeIn 0.8s ease forwards;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* Portal visual */
+.portal-visual {
+  position: relative;
+  width: 140px; height: 140px;
+}
+.portal-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  animation: spin var(--spd) linear infinite var(--dir);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.pr1 { border: 3px solid transparent; border-top-color: var(--c1); border-right-color: var(--c2); --spd:3s; --dir:normal; }
+.pr2 { inset:12px; border: 2px solid transparent; border-bottom-color: var(--c1); border-left-color: var(--c2); --spd:2s; --dir:reverse; }
+.pr3 { inset:24px; border: 2px solid transparent; border-top-color: var(--c2); --spd:4s; --dir:normal; }
+
+.portal-core {
+  position: absolute; inset: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  animation: corePulse 2s ease-in-out infinite;
+}
+@keyframes corePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* Header */
+.portal-header { text-align: center; }
+.scene-epoch {
+  font-size: 9px; letter-spacing: 4px;
+  text-transform: uppercase; margin-bottom: 6px; opacity: 0.6;
+}
+.portal-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(16px, 3.5vw, 22px); font-weight: 700;
+  margin-bottom: 8px;
+}
+.portal-desc {
+  font-family: 'Crimson Text', serif;
+  font-size: 15px; font-style: italic;
+  color: rgba(210,200,180,0.7); line-height: 1.6;
+  max-width: 380px; text-align: center;
+}
+
+/* Code input area */
+.code-area {
+  width: 100%;
+  background: rgba(10,8,20,0.9);
+  border-radius: 10px;
+  padding: 25px;
+  display: flex; flex-direction: column;
+  gap: 15px;
+}
+
+.code-label {
+  font-size: 9px; letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center; opacity: 0.5;
+}
+
+.code-display {
+  display: flex; justify-content: center; gap: 8px;
+  flex-wrap: wrap; min-height: 55px;
+  align-items: center;
+}
+
+.code-char {
+  width: 42px; height: 52px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700;
+  transition: all 0.2s ease;
+  border: 2px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: transparent;
+}
+.code-char.filled {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.06);
+  color: var(--accent);
+  box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.2);
+}
+.code-char.correct {
+  border-color: #44dd88;
+  background: rgba(68,221,136,0.1);
+  color: #44dd88;
+  box-shadow: 0 0 15px rgba(68,221,136,0.3);
+}
+.code-char.wrong {
+  border-color: #ff4422;
+  background: rgba(255,68,34,0.1);
+  color: #ff4422;
+  animation: shake 0.4s ease;
+}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Keyboard */
+.keyboard {
+  display: flex; flex-direction: column; gap: 6px;
+  align-items: center;
+}
+.kb-row {
+  display: flex; gap: 5px; justify-content: center; flex-wrap: wrap;
+}
+.kb-key {
+  width: 36px; height: 36px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.kb-key:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+.kb-key:active { transform: scale(0.95); }
+
+.kb-key.special {
+  width: auto; padding: 0 12px;
+  font-size: 10px; letter-spacing: 1px;
+}
+.kb-delete {
+  background: rgba(255,100,100,0.1);
+  border-color: rgba(255,100,100,0.2);
+  color: rgba(255,150,130,0.7);
+}
+.kb-delete:hover {
+  background: rgba(255,100,100,0.2);
+  color: #ff9080;
+}
+.kb-hyphen {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%; padding: 14px;
+  border-radius: 6px; border: none; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px;
+  letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+/* Feedback */
+.feedback {
+  text-align: center; min-height: 24px;
+  font-family: 'Crimson Text', serif;
+  font-size: 15px; font-style: italic;
+  transition: all 0.3s ease; opacity: 0;
+}
+.feedback.show { opacity: 1; }
+.feedback.error { color: #ff6644; }
+.feedback.success { color: #44dd88; }
+
+/* Back button */
+.back-btn {
+  font-size: 10px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.2);
+  cursor: pointer; text-transform: uppercase;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+.back-btn:hover { color: rgba(255,255,255,0.5); }
+
+/* SUCCESS OVERLAY */
+#success-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; opacity: 0; pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+#success-overlay.active { opacity: 1; pointer-events: all; }
+
+.success-icon { font-size: 70px; animation: successBounce 0.6s ease infinite alternate; }
+@keyframes successBounce{to{transform:scale(1.1)}}
+
+.success-title {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: clamp(18px, 4vw, 28px);
+  text-align: center;
+}
+.success-text {
+  font-family: 'Crimson Text', serif;
+  font-size: 17px; font-style: italic;
+  color: rgba(210,200,180,0.8);
+  text-align: center; max-width: 400px;
+  padding: 0 20px; line-height: 1.7;
+}
+.success-btn {
+  padding: 16px 40px; border-radius: 6px;
+  border: none; cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 13px;
+  letter-spacing: 3px; text-transform: uppercase;
+  transition: all 0.3s ease;
+  text-decoration: none; display: inline-block;
+}
+.success-btn:hover { transform: translateY(-3px); }
+
+/* ══ THEMES ══ */
+/* Scene 0 → 1 : Blue */
+.theme-blue {
+  --c1: #4ab3f4; --c2: #7dd3f8;
+  --accent: #4ab3f4; --accent-rgb: 74,179,244;
+  background: radial-gradient(ellipse at 30% 40%, rgba(26,58,92,0.4) 0%, #060810 70%);
+}
+.theme-blue .portal-core { background: radial-gradient(ellipse, rgba(74,179,244,0.3), rgba(0,30,80,0.8)); box-shadow: 0 0 30px rgba(74,179,244,0.4); }
+.theme-blue .scene-epoch { color: #7dd3f8; }
+.theme-blue .portal-title { color: #7dd3f8; text-shadow: 0 0 20px rgba(74,179,244,0.4); }
+.theme-blue .code-area { border: 1px solid rgba(74,179,244,0.15); }
+.theme-blue .submit-btn { background: linear-gradient(135deg, rgba(74,179,244,0.2), rgba(74,179,244,0.1)); border: 1px solid rgba(74,179,244,0.5); color: #7dd3f8; }
+.theme-blue .submit-btn:hover { background: linear-gradient(135deg, rgba(74,179,244,0.35), rgba(74,179,244,0.2)); box-shadow: 0 8px 25px rgba(74,179,244,0.3); transform: translateY(-2px); }
+.theme-blue #success-overlay { background: radial-gradient(ellipse, rgba(20,50,80,0.97), rgba(0,5,20,0.99)); }
+.theme-blue .success-title { color: #7dd3f8; text-shadow: 0 0 20px rgba(74,179,244,0.5); }
+.theme-blue .success-btn { background: linear-gradient(135deg, rgba(74,179,244,0.3), rgba(74,179,244,0.1)); border: 1px solid rgba(74,179,244,0.6); color: #7dd3f8; }
+
+/* Scene 1 → 2 : Purple */
+.theme-purple {
+  --c1: #b464ff; --c2: #d4a0ff;
+  --accent: #b464ff; --accent-rgb: 180,100,255;
+  background: radial-gradient(ellipse at 30% 40%, rgba(60,20,100,0.4) 0%, #060810 70%);
+}
+.theme-purple .portal-core { background: radial-gradient(ellipse, rgba(180,100,255,0.3), rgba(30,0,80,0.8)); box-shadow: 0 0 30px rgba(180,100,255,0.4); }
+.theme-purple .scene-epoch { color: #d4a0ff; }
+.theme-purple .portal-title { color: #d4a0ff; text-shadow: 0 0 20px rgba(180,100,255,0.4); }
+.theme-purple .code-area { border: 1px solid rgba(180,100,255,0.15); }
+.theme-purple .submit-btn { background: linear-gradient(135deg, rgba(180,100,255,0.2), rgba(180,100,255,0.1)); border: 1px solid rgba(180,100,255,0.5); color: #d4a0ff; }
+.theme-purple .submit-btn:hover { background: linear-gradient(135deg, rgba(180,100,255,0.35), rgba(180,100,255,0.2)); box-shadow: 0 8px 25px rgba(180,100,255,0.3); transform: translateY(-2px); }
+.theme-purple #success-overlay { background: radial-gradient(ellipse, rgba(40,10,80,0.97), rgba(5,0,20,0.99)); }
+.theme-purple .success-title { color: #d4a0ff; text-shadow: 0 0 20px rgba(180,100,255,0.5); }
+.theme-purple .success-btn { background: linear-gradient(135deg, rgba(180,100,255,0.3), rgba(180,100,255,0.1)); border: 1px solid rgba(180,100,255,0.6); color: #d4a0ff; }
+
+/* Scene 2 → 3 : Gold */
+.theme-gold {
+  --c1: #c9913d; --c2: #f0c97a;
+  --accent: #c9913d; --accent-rgb: 201,145,61;
+  background: radial-gradient(ellipse at 30% 40%, rgba(80,40,10,0.4) 0%, #060810 70%);
+}
+.theme-gold .portal-core { background: radial-gradient(ellipse, rgba(201,145,61,0.3), rgba(50,20,0,0.8)); box-shadow: 0 0 30px rgba(201,145,61,0.4); }
+.theme-gold .scene-epoch { color: #f0c97a; }
+.theme-gold .portal-title { color: #f0c97a; text-shadow: 0 0 20px rgba(201,145,61,0.4); }
+.theme-gold .code-area { border: 1px solid rgba(201,145,61,0.15); }
+.theme-gold .submit-btn { background: linear-gradient(135deg, rgba(201,145,61,0.2), rgba(201,145,61,0.1)); border: 1px solid rgba(201,145,61,0.5); color: #f0c97a; }
+.theme-gold .submit-btn:hover { background: linear-gradient(135deg, rgba(201,145,61,0.35), rgba(201,145,61,0.2)); box-shadow: 0 8px 25px rgba(201,145,61,0.3); transform: translateY(-2px); }
+.theme-gold #success-overlay { background: radial-gradient(ellipse, rgba(50,25,5,0.97), rgba(5,3,0,0.99)); }
+.theme-gold .success-title { color: #f0c97a; text-shadow: 0 0 20px rgba(201,145,61,0.5); }
+.theme-gold .success-btn { background: linear-gradient(135deg, rgba(201,145,61,0.3), rgba(201,145,61,0.1)); border: 1px solid rgba(201,145,61,0.6); color: #f0c97a; }
+
+/* Scene 3 → 4 : Teal */
+.theme-teal {
+  --c1: #00c8b4; --c2: #00e8d0;
+  --accent: #00c8b4; --accent-rgb: 0,200,180;
+  background: radial-gradient(ellipse at 30% 40%, rgba(0,60,50,0.4) 0%, #060810 70%);
+}
+.theme-teal .portal-core { background: radial-gradient(ellipse, rgba(0,200,180,0.3), rgba(0,30,25,0.8)); box-shadow: 0 0 30px rgba(0,200,180,0.4); }
+.theme-teal .scene-epoch { color: #00e8d0; }
+.theme-teal .portal-title { color: #00e8d0; text-shadow: 0 0 20px rgba(0,200,180,0.4); }
+.theme-teal .code-area { border: 1px solid rgba(0,200,180,0.15); }
+.theme-teal .submit-btn { background: linear-gradient(135deg, rgba(0,200,180,0.2), rgba(0,200,180,0.1)); border: 1px solid rgba(0,200,180,0.5); color: #00e8d0; }
+.theme-teal .submit-btn:hover { background: linear-gradient(135deg, rgba(0,200,180,0.35), rgba(0,200,180,0.2)); box-shadow: 0 8px 25px rgba(0,200,180,0.3); transform: translateY(-2px); }
+.theme-teal #success-overlay { background: radial-gradient(ellipse, rgba(0,40,35,0.97), rgba(0,5,5,0.99)); }
+.theme-teal .success-title { color: #00e8d0; text-shadow: 0 0 20px rgba(0,200,180,0.5); }
+.theme-teal .success-btn { background: linear-gradient(135deg, rgba(0,200,180,0.3), rgba(0,200,180,0.1)); border: 1px solid rgba(0,200,180,0.6); color: #00e8d0; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- SUCCESS OVERLAY -->
+<div id="success-overlay">
+  <div class="success-icon" id="success-icon">🌀</div>
+  <div class="success-title" id="success-title">Portail Déverrouillé !</div>
+  <div class="success-text" id="success-text">Excellent travail Agent Temporel !</div>
+  <a class="success-btn" id="success-btn" href="#">🌀 Traverser le portail →</a>
+</div>
+
+<!-- PORTAL UI -->
+<div class="portal-wrapper" id="portal-wrapper">
+
+  <div class="portal-visual">
+    <div class="portal-ring pr1"></div>
+    <div class="portal-ring pr2"></div>
+    <div class="portal-ring pr3"></div>
+    <div class="portal-core" id="portal-icon">🌀</div>
+  </div>
+
+  <div class="portal-header">
+    <div class="scene-epoch" id="scene-epoch">Scène 0 · Présent 2024</div>
+    <div class="portal-title" id="portal-title">Portail Temporel</div>
+    <div class="portal-desc" id="portal-desc">Saisissez le code découvert pour activer le portail !</div>
+  </div>
+
+  <div class="code-area">
+    <div class="code-label">🔐 Code d'accès temporel</div>
+    <div class="code-display" id="code-display"></div>
+    <div class="keyboard" id="keyboard"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="submit-btn" onclick="checkCode()">⚡ Activer le portail</button>
+  </div>
+
+  <a class="back-btn" href="https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538">← Retour au Virtual Tour</a>
+
+</div>
+
+<script>
+// ══ SCENE CONFIG ══
+const SCENES = {
+  0: {
+    theme: 'theme-blue',
+    epoch: '🖥️ Scène 0 · Présent 2024',
+    title: 'Portail vers le Moyen Âge',
+    desc: 'Pour voyager en 1350, prouve que tu maîtrises les 3 types de compétences !',
+    icon: '🖥️',
+    code: 'SAVOIR',
+    successIcon: '📜',
+    successTitle: 'Portail 1350 Déverrouillé !',
+    successText: 'Tu as prouvé ta maîtrise des compétences ! Le portail vers l\'Atelier du Magicien s\'ouvre...',
+    nextUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    nextLabel: '🏰 Vers l\'Atelier du Magicien →'
+  },
+  1: {
+    theme: 'theme-purple',
+    epoch: '🏰 Scène 1 · Moyen Âge 1350',
+    title: 'Portail vers la Fabrique',
+    desc: 'Pour voyager en 1880, prouve que tu as trouvé le Parchemin du Savoir !',
+    icon: '📜',
+    code: 'SAVOIR-FAIRE',
+    successIcon: '⚙️',
+    successTitle: 'Portail 1880 Déverrouillé !',
+    successText: 'Excellent ! Le Parchemin du Savoir est en ta possession. La Fabrique t\'attend !',
+    nextUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    nextLabel: '⚙️ Vers la Fabrique Industrielle →'
+  },
+  2: {
+    theme: 'theme-gold',
+    epoch: '⚙️ Scène 2 · Révolution 1880',
+    title: 'Portail vers le Futur',
+    desc: 'Pour voyager en 2150, prouve que tu maîtrises le Savoir-Faire opérationnel !',
+    icon: '⚙️',
+    code: 'SAVOIR-ETRE',
+    successIcon: '💎',
+    successTitle: 'Portail 2150 Déverrouillé !',
+    successText: 'Impressionnant ! L\'Engrenage du Savoir-Faire est à toi. L\'Agence de l\'Avenir t\'attend !',
+    nextUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    nextLabel: '🚀 Vers l\'Agence de l\'Avenir →'
+  },
+  3: {
+    theme: 'theme-teal',
+    epoch: '🚀 Scène 3 · Futur 2150',
+    title: 'Portail vers le Grand Livre',
+    desc: 'Pour reconstituer le Grand Livre, prouve que tu maîtrises le Savoir-Être !',
+    icon: '💎',
+    code: 'TRANSFERT',
+    successIcon: '🏆',
+    successTitle: 'Mission Accomplie !',
+    successText: 'Bravo Agent Temporel ! Les 3 artefacts sont réunis. Le Grand Livre des Compétences est reconstitué !',
+    nextUrl: 'https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=538',
+    nextLabel: '🌀 Vers le Grand Livre Final →'
+  }
+};
+
+// Get scene from URL param
+const params = new URLSearchParams(window.location.search);
+const sceneId = parseInt(params.get('scene') || '0');
+const scene = SCENES[sceneId] || SCENES[0];
+
+// Apply theme
+document.body.classList.add(scene.theme);
+
+// Fill header
+document.getElementById('scene-epoch').textContent = scene.epoch;
+document.getElementById('portal-title').textContent = scene.title;
+document.getElementById('portal-desc').textContent = scene.desc;
+document.getElementById('portal-icon').textContent = scene.icon;
+
+// Success overlay
+document.getElementById('success-icon').textContent = scene.successIcon;
+document.getElementById('success-title').textContent = scene.successTitle;
+document.getElementById('success-text').textContent = scene.successText;
+const successBtn = document.getElementById('success-btn');
+successBtn.textContent = scene.nextLabel;
+successBtn.href = scene.nextUrl;
+
+// ══ CODE DISPLAY ══
+let entered = '';
+const code = scene.code;
+const codeLen = code.length;
+
+function renderCodeDisplay() {
+  const container = document.getElementById('code-display');
+  container.innerHTML = '';
+  for(let i = 0; i < codeLen; i++) {
+    const div = document.createElement('div');
+    div.className = 'code-char';
+    div.id = `char-${i}`;
+    if(i < entered.length) {
+      div.classList.add('filled');
+      div.textContent = entered[i] === '-' ? '-' : entered[i];
+    }
+    container.appendChild(div);
+  }
+}
+
+// ══ KEYBOARD ══
+function buildKeyboard() {
+  const rows = [
+    ['A','B','C','D','E','F','G'],
+    ['H','I','J','K','L','M','N'],
+    ['O','P','Q','R','S','T','U'],
+    ['V','W','X','Y','Z','-','⌫']
+  ];
+  const kb = document.getElementById('keyboard');
+  rows.forEach(row => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'kb-row';
+    row.forEach(key => {
+      const btn = document.createElement('button');
+      btn.className = 'kb-key';
+      if(key === '⌫') btn.classList.add('kb-delete');
+      if(key === '-') btn.classList.add('kb-hyphen');
+      btn.textContent = key;
+      btn.onclick = () => handleKey(key);
+      rowDiv.appendChild(btn);
+    });
+    kb.appendChild(rowDiv);
+  });
+}
+
+function handleKey(key) {
+  if(key === '⌫') {
+    entered = entered.slice(0, -1);
+  } else if(entered.length < codeLen) {
+    entered += key;
+  }
+  renderCodeDisplay();
+  clearFeedback();
+}
+
+// Physical keyboard support
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Backspace') handleKey('⌫');
+  else if(e.key === 'Enter') checkCode();
+  else if(/^[a-zA-Z-]$/.test(e.key)) handleKey(e.key.toUpperCase());
+});
+
+// ══ CHECK CODE ══
+function checkCode() {
+  if(entered.length < codeLen) {
+    showFeedback('⚠️ Code incomplet — continue de saisir !', 'error');
+    return;
+  }
+
+  if(entered === code) {
+    // SUCCESS
+    markCharsCorrect();
+    setTimeout(() => {
+      triggerSuccess();
+    }, 600);
+  } else {
+    // ERROR
+    markCharsWrong();
+    showFeedback('❌ Code incorrect — cherche mieux dans les indices !', 'error');
+    setTimeout(() => {
+      entered = '';
+      renderCodeDisplay();
+      clearFeedback();
+    }, 1500);
+  }
+}
+
+function markCharsCorrect() {
+  for(let i = 0; i < codeLen; i++) {
+    setTimeout(() => {
+      const el = document.getElementById(`char-${i}`);
+      if(el) { el.classList.remove('filled'); el.classList.add('correct'); }
+    }, i * 80);
+  }
+}
+
+function markCharsWrong() {
+  for(let i = 0; i < codeLen; i++) {
+    const el = document.getElementById(`char-${i}`);
+    if(el && i < entered.length) {
+      el.classList.remove('filled'); el.classList.add('wrong');
+    }
+  }
+  setTimeout(() => {
+    for(let i = 0; i < codeLen; i++) {
+      const el = document.getElementById(`char-${i}`);
+      if(el) { el.classList.remove('wrong'); }
+    }
+  }, 500);
+}
+
+function showFeedback(msg, type) {
+  const el = document.getElementById('feedback');
+  el.textContent = msg;
+  el.className = `feedback show ${type}`;
+}
+
+function clearFeedback() {
+  const el = document.getElementById('feedback');
+  el.className = 'feedback';
+}
+
+function triggerSuccess() {
+  // Sound
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = 'sine';
+      gain.gain.setValueAtTime(0.2, ctx.currentTime + i*0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.12 + 0.3);
+      osc.start(ctx.currentTime + i*0.12);
+      osc.stop(ctx.currentTime + i*0.12 + 0.3);
+    });
+  } catch(e) {}
+
+  document.getElementById('success-overlay').classList.add('active');
+}
+
+// ══ STARS ══
+const s = document.getElementById('stars');
+for(let i = 0; i < 120; i++) {
+  const el = document.createElement('div');
+  el.className = 'star';
+  const sz = Math.random() < 0.15 ? 3 : Math.random() < 0.3 ? 2 : 1;
+  el.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;--o:${0.2+Math.random()*0.6}`;
+  s.appendChild(el);
+}
+
+// ══ INIT ══
+buildKeyboard();
+renderCodeDisplay();
+</script>
+</body>
+</html>

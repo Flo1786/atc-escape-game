@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 3 Artefacts</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: radial-gradient(ellipse at center, #0a0f1e 0%, #050810 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    padding: 40px 20px;
+    overflow-x: hidden;
+  }
+
+  .title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(16px, 3vw, 26px);
+    color: #f0c97a;
+    text-align: center;
+    margin-bottom: 50px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(240,201,122,0.6), 0 0 40px rgba(240,201,122,0.3);
+    animation: titleGlow 3s ease-in-out infinite;
+  }
+  @keyframes titleGlow {
+    0%,100% { text-shadow: 0 0 20px rgba(240,201,122,0.6), 0 0 40px rgba(240,201,122,0.3); }
+    50% { text-shadow: 0 0 30px rgba(240,201,122,0.9), 0 0 60px rgba(240,201,122,0.5), 0 0 80px rgba(240,201,122,0.2); }
+  }
+
+  .artefacts {
+    display: flex;
+    gap: 50px;
+    justify-content: center;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  /* === ARTEFACT BASE === */
+  .artefact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+  }
+
+  .artefact-visual {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Glow ring */
+  .glow-ring {
+    position: absolute;
+    inset: -15px;
+    border-radius: 50%;
+    animation: ringPulse 3s ease-in-out infinite;
+  }
+  @keyframes ringPulse {
+    0%,100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+
+  .artefact-label {
+    text-align: center;
+  }
+  .artefact-name {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .artefact-epoch {
+    font-size: 11px;
+    letter-spacing: 3px;
+    opacity: 0.7;
+  }
+
+  /* Particles */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* ================================
+     1. PARCHEMIN DU SAVOIR
+  ================================ */
+  .parchemin { animation: float1 4s ease-in-out infinite; }
+  @keyframes float1 {
+    0%,100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-18px) rotate(2deg); }
+  }
+
+  .parchemin .glow-ring {
+    background: radial-gradient(circle, rgba(201,145,61,0.2) 0%, transparent 70%);
+    box-shadow: 0 0 30px rgba(201,145,61,0.3);
+  }
+
+  .parchemin-scroll {
+    width: 110px;
+    height: 140px;
+    position: relative;
+    filter: drop-shadow(0 10px 30px rgba(201,145,61,0.5));
+  }
+
+  .parchemin-name { color: #f0c97a; }
+  .parchemin-epoch { color: #c9913d; }
+
+  /* Shimmer on parchment */
+  .parchemin-shimmer {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+    animation: shimmerMove 3s ease-in-out infinite;
+    background-size: 200% 200%;
+  }
+  @keyframes shimmerMove {
+    0% { background-position: -100% -100%; }
+    100% { background-position: 200% 200%; }
+  }
+
+  /* Parchment particles */
+  .p1 { width:6px;height:6px;background:#f0c97a;top:-10px;left:30px;animation:sparkle1 2s ease-in-out infinite; }
+  .p2 { width:4px;height:4px;background:#ffe49a;top:20px;right:-15px;animation:sparkle1 2.5s ease-in-out infinite 0.5s; }
+  .p3 { width:5px;height:5px;background:#c9913d;bottom:10px;left:-10px;animation:sparkle1 3s ease-in-out infinite 1s; }
+  @keyframes sparkle1 {
+    0%,100% { transform:scale(0);opacity:0; }
+    50% { transform:scale(1);opacity:1; }
+  }
+
+  /* ================================
+     2. ENGRENAGE DU SAVOIR-FAIRE
+  ================================ */
+  .engrenage { animation: float2 4.5s ease-in-out infinite 0.5s; }
+  @keyframes float2 {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-22px); }
+  }
+
+  .engrenage .glow-ring {
+    background: radial-gradient(circle, rgba(180,120,30,0.2) 0%, transparent 70%);
+    box-shadow: 0 0 30px rgba(180,120,30,0.4), 0 0 60px rgba(100,70,10,0.2);
+  }
+
+  .engrenage-name { color: #d4a843; }
+  .engrenage-epoch { color: #a07820; }
+
+  .gear-outer {
+    animation: gearSpin 8s linear infinite;
+    filter: drop-shadow(0 0 15px rgba(180,120,30,0.6)) drop-shadow(0 10px 25px rgba(180,120,30,0.4));
+  }
+  @keyframes gearSpin { to { transform: rotate(360deg); } }
+
+  .gear-inner {
+    animation: gearSpinReverse 5s linear infinite;
+  }
+  @keyframes gearSpinReverse { to { transform: rotate(-360deg); } }
+
+  /* Gear sparks */
+  .gs1 { width:4px;height:4px;background:#ffd700;top:5px;left:5px;animation:gearSpark 1.5s ease-in-out infinite; }
+  .gs2 { width:3px;height:3px;background:#ffa500;top:5px;right:5px;animation:gearSpark 1.5s ease-in-out infinite 0.5s; }
+  .gs3 { width:5px;height:5px;background:#ffec6e;bottom:5px;left:50%;animation:gearSpark 2s ease-in-out infinite 0.8s; }
+  @keyframes gearSpark {
+    0%,100% { transform:scale(0) rotate(0deg);opacity:0; }
+    50% { transform:scale(1) rotate(180deg);opacity:1; }
+  }
+
+  /* ================================
+     3. CRISTAL DU SAVOIR-ÊTRE
+  ================================ */
+  .cristal { animation: float3 3.5s ease-in-out infinite 1s; }
+  @keyframes float3 {
+    0%,100% { transform: translateY(0) rotate(1deg); }
+    50% { transform: translateY(-20px) rotate(-1deg); }
+  }
+
+  .cristal .glow-ring {
+    background: radial-gradient(circle, rgba(74,179,244,0.25) 0%, transparent 70%);
+    box-shadow: 0 0 40px rgba(74,179,244,0.4), 0 0 80px rgba(100,150,255,0.2);
+  }
+
+  .cristal-name { color: #7dd3f8; }
+  .cristal-epoch { color: #4ab3f4; }
+
+  .crystal-svg {
+    filter: drop-shadow(0 0 15px rgba(74,179,244,0.8)) drop-shadow(0 10px 30px rgba(74,179,244,0.5));
+    animation: crystalPulse 2s ease-in-out infinite;
+  }
+  @keyframes crystalPulse {
+    0%,100% { filter: drop-shadow(0 0 15px rgba(74,179,244,0.8)) drop-shadow(0 10px 30px rgba(74,179,244,0.5)); }
+    50% { filter: drop-shadow(0 0 25px rgba(74,179,244,1)) drop-shadow(0 0 50px rgba(150,200,255,0.8)) drop-shadow(0 10px 40px rgba(74,179,244,0.7)); }
+  }
+
+  /* Crystal particles */
+  .cp1 { width:5px;height:5px;background:#7dd3f8;top:-5px;left:40px;animation:crystalSpark 2s ease-in-out infinite; }
+  .cp2 { width:3px;height:3px;background:#bfefff;top:30px;right:-10px;animation:crystalSpark 2.5s ease-in-out infinite 0.7s; }
+  .cp3 { width:4px;height:4px;background:#4ab3f4;bottom:15px;left:-5px;animation:crystalSpark 1.8s ease-in-out infinite 1.2s; }
+  .cp4 { width:6px;height:6px;background:#e0f7ff;top:10px;left:-15px;animation:crystalSpark 3s ease-in-out infinite 0.3s; }
+  @keyframes crystalSpark {
+    0%,100% { transform:scale(0) translateY(0);opacity:0; }
+    30% { transform:scale(1) translateY(-5px);opacity:1; }
+    60% { transform:scale(0.5) translateY(-15px);opacity:0.5; }
+  }
+
+  /* Stars background */
+  .star {
+    position: fixed;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d) ease-in-out infinite;
+    opacity: var(--o);
+  }
+  @keyframes twinkle {
+    0%,100% { opacity: var(--o); }
+    50% { opacity: 0.1; }
+  }
+
+  /* Hover effects */
+  .artefact:hover .artefact-visual {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+  }
+  .artefact:hover .artefact-name {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  /* Separator */
+  .separator {
+    width: 2px;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, rgba(201,145,61,0.3), transparent);
+    align-self: center;
+  }
+
+  @media (max-width: 600px) {
+    .artefacts { gap: 30px; }
+    .separator { display: none; }
+    .artefact-visual { width: 120px; height: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars -->
+<script>
+for(let i=0;i<80;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  s.style.cssText=`left:${Math.random()*100}vw;top:${Math.random()*100}vh;width:${Math.random()<0.2?2:1}px;height:${Math.random()<0.2?2:1}px;--d:${2+Math.random()*3}s;--o:${0.3+Math.random()*0.6};animation-delay:${Math.random()*3}s;`;
+  document.body.appendChild(s);
+}
+</script>
+
+<div class="title">✦ Les 3 Artefacts du Grand Livre ✦</div>
+
+<div class="artefacts">
+
+  <!-- PARCHEMIN -->
+  <div class="artefact">
+    <div class="artefact-visual parchemin">
+      <div class="glow-ring"></div>
+      <div class="particle p1"></div>
+      <div class="particle p2"></div>
+      <div class="particle p3"></div>
+      <svg class="parchemin-scroll" viewBox="0 0 110 140" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="parchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f5dfa0"/>
+            <stop offset="40%" style="stop-color:#e8c870"/>
+            <stop offset="100%" style="stop-color:#c9913d"/>
+          </linearGradient>
+          <linearGradient id="rollGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#a07030"/>
+            <stop offset="50%" style="stop-color:#d4a843"/>
+            <stop offset="100%" style="stop-color:#a07030"/>
+          </linearGradient>
+          <filter id="parchShadow">
+            <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#80500a" flood-opacity="0.5"/>
+          </filter>
+        </defs>
+        <!-- Main scroll body -->
+        <rect x="8" y="18" width="94" height="104" rx="3" fill="url(#parchGrad)" filter="url(#parchShadow)"/>
+        <!-- Top roll -->
+        <ellipse cx="55" cy="18" rx="47" ry="10" fill="url(#rollGrad)"/>
+        <ellipse cx="55" cy="18" rx="35" ry="6" fill="#f0c060" opacity="0.5"/>
+        <!-- Bottom roll -->
+        <ellipse cx="55" cy="122" rx="47" ry="10" fill="url(#rollGrad)"/>
+        <ellipse cx="55" cy="122" rx="35" ry="6" fill="#f0c060" opacity="0.5"/>
+        <!-- Text lines -->
+        <line x1="22" y1="38" x2="88" y2="38" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <line x1="22" y1="50" x2="88" y2="50" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <line x1="22" y1="62" x2="75" y2="62" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <line x1="22" y1="74" x2="88" y2="74" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <line x1="22" y1="86" x2="65" y2="86" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <line x1="22" y1="98" x2="88" y2="98" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <line x1="22" y1="110" x2="78" y2="110" stroke="#8b6010" stroke-width="1.5" opacity="0.6"/>
+        <!-- Magic rune symbol -->
+        <text x="55" y="76" text-anchor="middle" font-size="22" fill="#8b6010" opacity="0.4" font-family="serif">᛭</text>
+        <!-- Gold border -->
+        <rect x="8" y="18" width="94" height="104" rx="3" fill="none" stroke="#c9913d" stroke-width="1.5" opacity="0.8"/>
+        <!-- Shimmer overlay -->
+        <rect x="8" y="18" width="94" height="104" rx="3" fill="url(#shimmerGrad)" opacity="0.3">
+          <animate attributeName="opacity" values="0;0.4;0" dur="3s" repeatCount="indefinite"/>
+        </rect>
+        <defs>
+          <linearGradient id="shimmerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:white;stop-opacity:0"/>
+            <stop offset="50%" style="stop-color:white;stop-opacity:1"/>
+            <stop offset="100%" style="stop-color:white;stop-opacity:0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="artefact-label">
+      <div class="artefact-name parchemin-name">Parchemin du Savoir</div>
+      <div class="artefact-epoch parchemin-epoch">◈ 1350 ◈</div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- ENGRENAGE -->
+  <div class="artefact">
+    <div class="artefact-visual engrenage">
+      <div class="glow-ring"></div>
+      <div class="particle gs1"></div>
+      <div class="particle gs2"></div>
+      <div class="particle gs3"></div>
+      <svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="gearGrad" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" style="stop-color:#f0c060"/>
+            <stop offset="50%" style="stop-color:#c9813d"/>
+            <stop offset="100%" style="stop-color:#7a4a10"/>
+          </radialGradient>
+          <radialGradient id="gearInnerGrad" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" style="stop-color:#3a2a10"/>
+            <stop offset="100%" style="stop-color:#1a1008"/>
+          </radialGradient>
+          <filter id="gearGlow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <g transform="translate(75,75)">
+          <!-- Outer gear -->
+          <g class="gear-outer">
+            <!-- Gear teeth -->
+            <g fill="url(#gearGrad)" stroke="#f0c060" stroke-width="0.5">
+              <rect x="-8" y="-68" width="16" height="18" rx="2"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(30)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(60)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(90)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(120)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(150)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(180)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(210)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(240)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(270)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(300)"/>
+              <rect x="-8" y="-68" width="16" height="18" rx="2" transform="rotate(330)"/>
+            </g>
+            <!-- Main circle -->
+            <circle r="55" fill="url(#gearGrad)" stroke="#f0c060" stroke-width="1.5"/>
+            <!-- Inner decorative ring -->
+            <circle r="45" fill="none" stroke="#f0c060" stroke-width="1" opacity="0.5"/>
+            <circle r="38" fill="#5a3a10" stroke="#c9813d" stroke-width="1"/>
+            <!-- Spoke holes -->
+            <circle cx="0" cy="-30" r="6" fill="url(#gearInnerGrad)" stroke="#c9813d" stroke-width="1"/>
+            <circle cx="26" cy="15" r="6" fill="url(#gearInnerGrad)" stroke="#c9813d" stroke-width="1"/>
+            <circle cx="-26" cy="15" r="6" fill="url(#gearInnerGrad)" stroke="#c9813d" stroke-width="1"/>
+            <!-- Center -->
+            <circle r="14" fill="url(#gearGrad)" stroke="#f0c060" stroke-width="1.5"/>
+            <g class="gear-inner">
+              <circle r="10" fill="#3a2010" stroke="#c9813d" stroke-width="1"/>
+              <line x1="0" y1="-8" x2="0" y2="8" stroke="#f0c060" stroke-width="1.5"/>
+              <line x1="-8" y1="0" x2="8" y2="0" stroke="#f0c060" stroke-width="1.5"/>
+            </g>
+            <!-- Glow overlay -->
+            <circle r="55" fill="none" stroke="#ffd700" stroke-width="2" opacity="0.3">
+              <animate attributeName="opacity" values="0.1;0.5;0.1" dur="2s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="artefact-label">
+      <div class="artefact-name engrenage-name">Engrenage du Savoir-Faire</div>
+      <div class="artefact-epoch engrenage-epoch">◈ 1880 ◈</div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <!-- CRISTAL -->
+  <div class="artefact">
+    <div class="artefact-visual cristal">
+      <div class="glow-ring"></div>
+      <div class="particle cp1"></div>
+      <div class="particle cp2"></div>
+      <div class="particle cp3"></div>
+      <div class="particle cp4"></div>
+      <svg class="crystal-svg" width="120" height="150" viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="crystalGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#e0f7ff"/>
+            <stop offset="30%" style="stop-color:#7dd3f8"/>
+            <stop offset="70%" style="stop-color:#4ab3f4"/>
+            <stop offset="100%" style="stop-color:#1a6fa0"/>
+          </linearGradient>
+          <linearGradient id="crystalGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#bfefff;stop-opacity:0.8"/>
+            <stop offset="100%" style="stop-color:#2a8abf;stop-opacity:0.9"/>
+          </linearGradient>
+          <linearGradient id="crystalGrad3" x1="0%" y1="0%" x2="50%" y2="100%">
+            <stop offset="0%" style="stop-color:#4ab3f4"/>
+            <stop offset="100%" style="stop-color:#0a4a7a"/>
+          </linearGradient>
+          <filter id="crystalGlow">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Crystal facets -->
+        <!-- Left facet -->
+        <polygon points="60,10 20,55 45,140 60,150" fill="url(#crystalGrad3)" opacity="0.9"/>
+        <!-- Right facet -->
+        <polygon points="60,10 100,55 75,140 60,150" fill="url(#crystalGrad1)" opacity="0.95"/>
+        <!-- Center front facet -->
+        <polygon points="45,55 75,55 75,140 45,140" fill="url(#crystalGrad2)" opacity="0.8"/>
+        <!-- Top left -->
+        <polygon points="60,10 20,55 45,55" fill="#bfefff" opacity="0.7"/>
+        <!-- Top right -->
+        <polygon points="60,10 100,55 75,55" fill="#7dd3f8" opacity="0.6"/>
+        <!-- Highlight streak -->
+        <polygon points="60,10 65,15 50,60 45,55" fill="white" opacity="0.4"/>
+        <!-- Inner light -->
+        <ellipse cx="60" cy="90" rx="15" ry="25" fill="#7dd3f8" opacity="0.3">
+          <animate attributeName="opacity" values="0.1;0.5;0.1" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="20;30;20" dur="2s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Outline -->
+        <polygon points="60,10 20,55 45,140 60,150 75,140 100,55" fill="none" stroke="#7dd3f8" stroke-width="1" opacity="0.8"/>
+        <!-- Top cap -->
+        <polygon points="60,8 20,54 45,54 60,9 75,54 100,54" fill="none" stroke="#bfefff" stroke-width="1" opacity="0.6"/>
+        <!-- Sparkle center -->
+        <circle cx="60" cy="80" r="8" fill="white" opacity="0.15">
+          <animate attributeName="r" values="5;12;5" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.05;0.25;0.05" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    </div>
+    <div class="artefact-label">
+      <div class="artefact-name cristal-name">Cristal du Savoir-Être</div>
+      <div class="artefact-epoch cristal-epoch">◈ 2150 ◈</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les 5 Scènes — ATC Escape Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: #060810;
+  font-family: 'Crimson Text', Georgia, serif;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ── STARS ── */
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%; background:white;
+  animation: twinkle var(--d) ease-in-out infinite var(--delay);
+}
+@keyframes twinkle {
+  0%,100%{opacity:var(--o);transform:scale(1)}
+  50%{opacity:0.1;transform:scale(0.5)}
+}
+
+/* ── HEADER ── */
+.header {
+  position: relative; z-index:10;
+  text-align:center;
+  padding: 60px 20px 40px;
+  background: linear-gradient(to bottom, rgba(6,8,16,0) 0%, rgba(6,8,16,0) 100%);
+}
+
+.header-badge {
+  display:inline-flex; align-items:center; gap:10px;
+  background: rgba(201,145,61,0.1);
+  border: 1px solid rgba(201,145,61,0.4);
+  border-radius:30px; padding:6px 20px; margin-bottom:20px;
+}
+.header-badge span {
+  font-family:'Cinzel',serif; font-size:10px; letter-spacing:4px;
+  color:#c9913d; text-transform:uppercase;
+}
+.badge-pulse {
+  width:6px;height:6px;border-radius:50%;background:#4ab3f4;
+  box-shadow:0 0 8px #4ab3f4;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.6);opacity:0.6}}
+
+.main-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(20px,4vw,38px);
+  background: linear-gradient(135deg, #8b5e00, #c9913d, #f0c97a, #c9913d, #8b5e00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:shimmer 4s ease-in-out infinite;
+  margin-bottom:8px;
+}
+@keyframes shimmer{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+
+.sub-title {
+  font-family:'Cinzel',serif; font-size:11px; letter-spacing:5px;
+  color:rgba(201,145,61,0.6); text-transform:uppercase;
+}
+
+/* ── TIMELINE LINE ── */
+.timeline-container {
+  position:relative; z-index:5;
+  max-width:1100px; margin:0 auto; padding:0 20px 80px;
+}
+
+.timeline-line {
+  position:absolute; left:50%; top:0; bottom:0;
+  width:2px; transform:translateX(-50%);
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    rgba(201,145,61,0.8) 5%,
+    rgba(74,179,244,0.6) 50%,
+    rgba(201,145,61,0.8) 95%,
+    transparent 100%
+  );
+}
+
+/* ── SCENE CARD ── */
+.scene {
+  display:flex; align-items:flex-start; gap:40px;
+  margin-bottom:80px; position:relative;
+  opacity:0; transform:translateY(40px);
+  animation:fadeInUp 0.8s ease forwards;
+}
+.scene:nth-child(1){animation-delay:0.1s}
+.scene:nth-child(2){animation-delay:0.3s}
+.scene:nth-child(3){animation-delay:0.5s}
+.scene:nth-child(4){animation-delay:0.7s}
+.scene:nth-child(5){animation-delay:0.9s}
+
+@keyframes fadeInUp{to{opacity:1;transform:translateY(0)}}
+
+/* Alternate left/right */
+.scene:nth-child(even) { flex-direction:row-reverse; }
+
+/* Timeline dot */
+.timeline-dot {
+  position:absolute; left:50%; top:30px;
+  transform:translateX(-50%);
+  width:20px; height:20px; border-radius:50%;
+  border:3px solid; z-index:10;
+  animation:dotPulse 3s ease-in-out infinite;
+}
+@keyframes dotPulse{
+  0%,100%{box-shadow:0 0 0 0 currentColor}
+  50%{box-shadow:0 0 0 8px transparent}
+}
+
+.scene-content {
+  flex:1; max-width:calc(50% - 50px);
+  position:relative;
+}
+
+/* Scene card */
+.scene-card {
+  border-radius:8px; overflow:hidden;
+  position:relative;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.scene-card:hover { transform:translateY(-6px) scale(1.01); }
+
+/* Card header with animated bg */
+.card-header {
+  position:relative; height:160px; overflow:hidden;
+  display:flex; flex-direction:column;
+  justify-content:flex-end; padding:20px;
+}
+
+.card-header-bg {
+  position:absolute; inset:0;
+  background-size:200% 200%;
+  animation:bgShift 6s ease-in-out infinite;
+}
+@keyframes bgShift{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+.card-header-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%);
+}
+
+.scene-badge {
+  position:absolute; top:15px; left:15px;
+  display:flex; align-items:center; gap:6px;
+  padding:4px 12px; border-radius:20px;
+  font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px;
+  text-transform:uppercase; font-weight:700;
+  backdrop-filter:blur(10px);
+  z-index:2;
+}
+
+.scene-number {
+  position:absolute; top:15px; right:15px;
+  width:32px; height:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cinzel',serif; font-size:13px; font-weight:700;
+  backdrop-filter:blur(10px); z-index:2;
+}
+
+.card-header-content { position:relative; z-index:2; }
+
+.scene-epoch {
+  font-family:'Cinzel',serif; font-size:10px;
+  letter-spacing:3px; opacity:0.8; margin-bottom:4px;
+  text-transform:uppercase;
+}
+.scene-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(14px,2vw,20px);
+  color:white; font-weight:700;
+  text-shadow:0 2px 8px rgba(0,0,0,0.8);
+}
+
+.duration-badge {
+  position:absolute; bottom:15px; right:15px;
+  display:flex; align-items:center; gap:5px;
+  background:rgba(0,0,0,0.5); border-radius:20px;
+  padding:4px 10px; font-size:11px; color:white;
+  backdrop-filter:blur(5px); z-index:2;
+  font-family:'Cinzel',serif; letter-spacing:1px;
+}
+
+/* Card body */
+.card-body {
+  padding:20px 22px 22px;
+  background:linear-gradient(135deg, rgba(15,18,30,0.97), rgba(10,12,22,0.99));
+  border:1px solid; border-top:none; border-radius:0 0 8px 8px;
+}
+
+.scene-description {
+  font-size:15px; line-height:1.7;
+  color:rgba(220,210,190,0.85);
+  font-style:italic; margin-bottom:16px;
+  padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.info-row {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; margin-bottom:14px;
+}
+
+.info-block-label {
+  font-family:'Cinzel',serif; font-size:8px;
+  letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:4px; opacity:0.6;
+}
+.info-block-value {
+  font-size:13px; line-height:1.4;
+  color:rgba(240,220,180,0.9); font-weight:600;
+}
+
+.tags-row {
+  display:flex; flex-wrap:wrap; gap:6px; margin-top:12px;
+}
+.tag {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:1px; padding:3px 10px;
+  border-radius:12px; border:1px solid;
+  text-transform:uppercase; opacity:0.8;
+}
+
+/* Animated floating icon */
+.scene-icon {
+  font-size:28px; margin-bottom:8px;
+  display:block;
+  animation:iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+/* Particles on card */
+.card-particle {
+  position:absolute; border-radius:50%;
+  pointer-events:none; z-index:1;
+  animation:cardParticle var(--cp-d) ease-in-out infinite var(--cp-delay);
+}
+@keyframes cardParticle{
+  0%,100%{transform:translateY(0) scale(1);opacity:0.6}
+  50%{transform:translateY(-20px) scale(0.5);opacity:0}
+}
+
+/* ═══════════════════════════════
+   SCENE 1 — Salle de Contrôle
+═══════════════════════════════ */
+.s1 .card-header-bg {
+  background: linear-gradient(135deg, #0a1628, #1a3a5c, #0d2040, #1a3a5c);
+}
+.s1 .scene-badge { background:rgba(74,179,244,0.2); border:1px solid rgba(74,179,244,0.5); color:#7dd3f8; }
+.s1 .scene-number { background:rgba(74,179,244,0.2); border:2px solid #4ab3f4; color:#4ab3f4; }
+.s1 .scene-epoch { color:#7dd3f8; }
+.s1 .timeline-dot { background:#4ab3f4; border-color:#4ab3f4; color:#4ab3f4; }
+.s1 .card-body { border-color:rgba(74,179,244,0.2); }
+.s1 .card-body:hover { box-shadow:0 20px 60px rgba(74,179,244,0.15); }
+.s1 .scene-card { box-shadow:0 10px 40px rgba(74,179,244,0.1); }
+.s1 .scene-card:hover { box-shadow:0 20px 60px rgba(74,179,244,0.25); }
+.s1 .info-block-label { color:#4ab3f4; }
+.s1 .tag { border-color:rgba(74,179,244,0.4); color:#7dd3f8; background:rgba(74,179,244,0.08); }
+/* Hologram scan line */
+.s1 .card-header::after {
+  content:'';position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(74,179,244,0.8),transparent);
+  animation:scanLine 3s linear infinite;z-index:3;
+}
+@keyframes scanLine{0%{top:0}100%{top:100%}}
+
+/* ═══════════════════════════════
+   SCENE 2 — Atelier du Magicien
+═══════════════════════════════ */
+.s2 .card-header-bg {
+  background: linear-gradient(135deg, #1a0a2e, #3d1a60, #2a0a40, #4a2080);
+}
+.s2 .scene-badge { background:rgba(180,100,255,0.2); border:1px solid rgba(180,100,255,0.5); color:#d4a0ff; }
+.s2 .scene-number { background:rgba(180,100,255,0.2); border:2px solid #b464ff; color:#b464ff; }
+.s2 .scene-epoch { color:#d4a0ff; }
+.s2 .timeline-dot { background:#b464ff; border-color:#b464ff; color:#b464ff; }
+.s2 .card-body { border-color:rgba(180,100,255,0.2); }
+.s2 .scene-card { box-shadow:0 10px 40px rgba(180,100,255,0.1); }
+.s2 .scene-card:hover { box-shadow:0 20px 60px rgba(180,100,255,0.25); }
+.s2 .info-block-label { color:#b464ff; }
+.s2 .tag { border-color:rgba(180,100,255,0.4); color:#d4a0ff; background:rgba(180,100,255,0.08); }
+/* Magic sparkles */
+.s2 .card-header::before {
+  content:'✦';position:absolute;font-size:12px;color:rgba(212,160,255,0.6);
+  animation:magicStar 2s ease-in-out infinite;z-index:3;
+  top:40px;left:20px;
+}
+@keyframes magicStar{0%,100%{opacity:0.3;transform:scale(0.8) rotate(0deg)}50%{opacity:1;transform:scale(1.2) rotate(180deg)}}
+
+/* ═══════════════════════════════
+   SCENE 3 — Fabrique Industrielle
+═══════════════════════════════ */
+.s3 .card-header-bg {
+  background: linear-gradient(135deg, #1a1008, #3d2810, #5a3a10, #3d2810);
+}
+.s3 .scene-badge { background:rgba(201,145,61,0.2); border:1px solid rgba(201,145,61,0.5); color:#f0c97a; }
+.s3 .scene-number { background:rgba(201,145,61,0.2); border:2px solid #c9913d; color:#c9913d; }
+.s3 .scene-epoch { color:#f0c97a; }
+.s3 .timeline-dot { background:#c9913d; border-color:#c9913d; color:#c9913d; }
+.s3 .card-body { border-color:rgba(201,145,61,0.2); }
+.s3 .scene-card { box-shadow:0 10px 40px rgba(201,145,61,0.1); }
+.s3 .scene-card:hover { box-shadow:0 20px 60px rgba(201,145,61,0.25); }
+.s3 .info-block-label { color:#c9913d; }
+.s3 .tag { border-color:rgba(201,145,61,0.4); color:#f0c97a; background:rgba(201,145,61,0.08); }
+/* Steam effect */
+.steam {
+  position:absolute; bottom:0; width:8px;
+  background:linear-gradient(to top,rgba(255,200,100,0.4),transparent);
+  border-radius:4px; z-index:3;
+  animation:steam var(--s-d) ease-in-out infinite var(--s-delay);
+}
+@keyframes steam{0%{height:0;opacity:0.8}100%{height:60px;opacity:0}}
+/* Gear rotation overlay */
+.s3 .card-header::after {
+  content:'⚙';position:absolute;font-size:40px;
+  color:rgba(201,145,61,0.15);right:20px;top:50%;
+  transform:translateY(-50%);
+  animation:gearRotate 4s linear infinite;z-index:1;
+}
+@keyframes gearRotate{to{transform:translateY(-50%) rotate(360deg)}}
+
+/* ═══════════════════════════════
+   SCENE 4 — Agence de l'Avenir
+═══════════════════════════════ */
+.s4 .card-header-bg {
+  background: linear-gradient(135deg, #001428, #002a40, #004060, #002a40);
+}
+.s4 .scene-badge { background:rgba(0,200,180,0.2); border:1px solid rgba(0,200,180,0.5); color:#00e8d0; }
+.s4 .scene-number { background:rgba(0,200,180,0.2); border:2px solid #00c8b4; color:#00c8b4; }
+.s4 .scene-epoch { color:#00e8d0; }
+.s4 .timeline-dot { background:#00c8b4; border-color:#00c8b4; color:#00c8b4; }
+.s4 .card-body { border-color:rgba(0,200,180,0.2); }
+.s4 .scene-card { box-shadow:0 10px 40px rgba(0,200,180,0.1); }
+.s4 .scene-card:hover { box-shadow:0 20px 60px rgba(0,200,180,0.25); }
+.s4 .info-block-label { color:#00c8b4; }
+.s4 .tag { border-color:rgba(0,200,180,0.4); color:#00e8d0; background:rgba(0,200,180,0.08); }
+/* Hologram grid */
+.s4 .card-header::before {
+  content:'';position:absolute;inset:0;z-index:1;
+  background-image:
+    linear-gradient(rgba(0,200,180,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,180,0.05) 1px, transparent 1px);
+  background-size:20px 20px;
+  animation:gridPulse 4s ease-in-out infinite;
+}
+@keyframes gridPulse{0%,100%{opacity:0.5}50%{opacity:1}}
+
+/* ═══════════════════════════════
+   SCENE 5 — Salle du Grand Livre
+═══════════════════════════════ */
+.s5 .card-header-bg {
+  background: linear-gradient(135deg, #1a0808, #400a0a, #600a20, #400a0a);
+}
+.s5 .scene-badge { background:rgba(255,100,100,0.15); border:1px solid rgba(255,150,100,0.5); color:#ffb480; }
+.s5 .scene-number { background:rgba(255,100,100,0.15); border:2px solid #ff6464; color:#ff9080; }
+.s5 .scene-epoch { color:#ffb480; }
+.s5 .timeline-dot { background:#ff6464; border-color:#ff6464; color:#ff6464; }
+.s5 .card-body { border-color:rgba(255,100,100,0.2); }
+.s5 .scene-card { box-shadow:0 10px 40px rgba(255,100,100,0.1); }
+.s5 .scene-card:hover { box-shadow:0 20px 60px rgba(255,100,100,0.3); }
+.s5 .info-block-label { color:#ff9080; }
+.s5 .tag { border-color:rgba(255,100,100,0.4); color:#ffb480; background:rgba(255,100,100,0.08); }
+/* Portal swirl */
+.s5 .card-header::after {
+  content:'🌀';position:absolute;font-size:50px;
+  right:15px;top:50%;transform:translateY(-50%);
+  animation:portalSpin 6s linear infinite;z-index:1;opacity:0.3;
+}
+@keyframes portalSpin{to{transform:translateY(-50%) rotate(360deg)}}
+
+/* ── FOOTER ── */
+.page-footer {
+  text-align:center; padding:40px 20px 60px;
+  position:relative; z-index:5;
+}
+.footer-text {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:4px; color:rgba(201,145,61,0.4);
+  text-transform:uppercase;
+}
+
+@media(max-width:700px){
+  .timeline-line{display:none}
+  .timeline-dot{display:none}
+  .scene{flex-direction:column!important;gap:0}
+  .scene-content{max-width:100%}
+  .info-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-badge">
+    <div class="badge-pulse"></div>
+    <span>Agence Temporelle des Compétences</span>
+    <div class="badge-pulse"></div>
+  </div>
+  <h1 class="main-title">Les 5 Scènes de l'Escape Game</h1>
+  <p class="sub-title">Votre voyage à travers le temps</p>
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline-container">
+  <div class="timeline-line"></div>
+
+  <!-- ── SCENE 1 ── -->
+  <div class="scene s1">
+    <div class="timeline-dot"></div>
+    <div class="scene-content">
+      <div class="scene-card">
+        <div class="card-header">
+          <div class="card-header-bg"></div>
+          <div class="card-header-overlay"></div>
+          <div class="scene-badge">🖥️ Introduction & Briefing</div>
+          <div class="scene-number">1</div>
+          <div class="duration-badge">⏱ 5 min</div>
+          <div class="card-header-content">
+            <div class="scene-epoch">Présent — 2024</div>
+            <div class="scene-title">Salle de Contrôle ATC</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="scene-description">
+            L'Agence Temporelle des Compétences vous accueille. Vous recevez votre mission : récupérer les 3 artefacts du Grand Livre des Compétences avant la fermeture du portail temporel.
+          </p>
+          <div class="info-row">
+            <div>
+              <div class="info-block-label">🔐 Énigme</div>
+              <div class="info-block-value">Code d'Accès Temporel</div>
+            </div>
+            <div>
+              <div class="info-block-label">🎯 Objectif pédagogique</div>
+              <div class="info-block-value">Distinguer les 3 types de compétences</div>
+            </div>
+          </div>
+          <div class="tags-row">
+            <span class="tag">Drag & Drop</span>
+            <span class="tag">Horloge animée</span>
+            <span class="tag">Écran holographique</span>
+            <span class="tag">Carte temporelle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 2 ── -->
+  <div class="scene s2">
+    <div class="timeline-dot"></div>
+    <div class="scene-content">
+      <div class="scene-card">
+        <div class="card-header">
+          <div class="card-header-bg"></div>
+          <div class="card-header-overlay"></div>
+          <div class="scene-badge">📖 Le SAVOIR</div>
+          <div class="scene-number">2</div>
+          <div class="duration-badge">⏱ 10 min</div>
+          <div class="card-header-content">
+            <div class="scene-epoch">Moyen Âge — 1350</div>
+            <div class="scene-title">L'Atelier du Magicien</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="scene-description">
+            Le Magicien Aldric a été transformé en grenouille. Ses grimoires renferment le Parchemin du Savoir. Résolvez les énigmes de la bibliothèque magique pour récupérer l'artefact.
+          </p>
+          <div class="info-row">
+            <div>
+              <div class="info-block-label">🔐 Énigme</div>
+              <div class="info-block-value">Le Grimoire des Savoirs + La Bibliothèque Magique</div>
+            </div>
+            <div>
+              <div class="info-block-label">🎯 Objectif pédagogique</div>
+              <div class="info-block-value">Identifier et classer les savoirs théoriques</div>
+            </div>
+          </div>
+          <div class="tags-row">
+            <span class="tag">QCM</span>
+            <span class="tag">Drag & Drop</span>
+            <span class="tag">Grimoires</span>
+            <span class="tag">Alambic magique</span>
+            <span class="tag">📜 Parchemin du Savoir</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 3 ── -->
+  <div class="scene s3">
+    <div class="timeline-dot"></div>
+    <div class="scene-content">
+      <div class="scene-card">
+        <div class="card-header">
+          <div class="card-header-bg"></div>
+          <div class="card-header-overlay"></div>
+          <div class="steam" style="left:30px;--s-d:2s;--s-delay:0s"></div>
+          <div class="steam" style="left:55px;--s-d:2.5s;--s-delay:0.5s"></div>
+          <div class="steam" style="left:80px;--s-d:3s;--s-delay:1s"></div>
+          <div class="scene-badge">🔧 Le SAVOIR-FAIRE</div>
+          <div class="scene-number">3</div>
+          <div class="duration-badge">⏱ 10 min</div>
+          <div class="card-header-content">
+            <div class="scene-epoch">Révolution Industrielle — 1880</div>
+            <div class="scene-title">La Fabrique Industrielle</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="scene-description">
+            Les machines de Monsieur Beaumont se sont déréglées. L'Engrenage du Savoir-Faire est caché dans la forge. Identifiez les savoir-faire sur les plans techniques pour le récupérer.
+          </p>
+          <div class="info-row">
+            <div>
+              <div class="info-block-label">🔐 Énigme</div>
+              <div class="info-block-value">Les Plans de la Machine + La Forge des Compétences</div>
+            </div>
+            <div>
+              <div class="info-block-label">🎯 Objectif pédagogique</div>
+              <div class="info-block-value">Distinguer et identifier les savoir-faire opérationnels</div>
+            </div>
+          </div>
+          <div class="tags-row">
+            <span class="tag">Image Hotspots</span>
+            <span class="tag">Vrai/Faux</span>
+            <span class="tag">Machine à vapeur</span>
+            <span class="tag">Forge</span>
+            <span class="tag">⚙️ Engrenage du Savoir-Faire</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 4 ── -->
+  <div class="scene s4">
+    <div class="timeline-dot"></div>
+    <div class="scene-content">
+      <div class="scene-card">
+        <div class="card-header">
+          <div class="card-header-bg"></div>
+          <div class="card-header-overlay"></div>
+          <div class="scene-badge">💎 Le SAVOIR-ÊTRE</div>
+          <div class="scene-number">4</div>
+          <div class="duration-badge">⏱ 10 min</div>
+          <div class="card-header-content">
+            <div class="scene-epoch">Futur — 2150</div>
+            <div class="scene-title">L'Agence de l'Avenir</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="scene-description">
+            Madame Nova dirige l'agence du futur où les robots gèrent les tâches techniques. Seul le Savoir-Être différencie les humains. Évaluez les candidats pour trouver le Cristal.
+          </p>
+          <div class="info-row">
+            <div>
+              <div class="info-block-label">🔐 Énigme</div>
+              <div class="info-block-value">L'Évaluation des Candidats + La Mise en Situation</div>
+            </div>
+            <div>
+              <div class="info-block-label">🎯 Objectif pédagogique</div>
+              <div class="info-block-value">Identifier et valoriser les savoir-être professionnels</div>
+            </div>
+          </div>
+          <div class="tags-row">
+            <span class="tag">Drag & Drop</span>
+            <span class="tag">Scénario</span>
+            <span class="tag">Hologramme</span>
+            <span class="tag">Robot assistant</span>
+            <span class="tag">💎 Cristal du Savoir-Être</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCENE 5 ── -->
+  <div class="scene s5">
+    <div class="timeline-dot"></div>
+    <div class="scene-content">
+      <div class="scene-card">
+        <div class="card-header">
+          <div class="card-header-bg"></div>
+          <div class="card-header-overlay"></div>
+          <div class="scene-badge">⭐ Compétences TRANSFÉRABLES</div>
+          <div class="scene-number">5</div>
+          <div class="duration-badge">⏱ 10 min</div>
+          <div class="card-header-content">
+            <div class="scene-epoch">Présent — 2024</div>
+            <div class="scene-title">La Salle du Grand Livre</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="scene-description">
+            Retour à l'ATC avec les 3 artefacts. Le Maître Obscur a posé un dernier verrou : une énigme sur les compétences transférables. Résolvez-la pour reconstituer le Grand Livre !
+          </p>
+          <div class="info-row">
+            <div>
+              <div class="info-block-label">🔐 Énigme</div>
+              <div class="info-block-value">Le Verrou des Compétences Transférables</div>
+            </div>
+            <div>
+              <div class="info-block-label">🎯 Objectif pédagogique</div>
+              <div class="info-block-value">Comprendre et identifier les compétences transférables</div>
+            </div>
+          </div>
+          <div class="tags-row">
+            <span class="tag">QCM</span>
+            <span class="tag">Drag & Drop</span>
+            <span class="tag">Portails temporels</span>
+            <span class="tag">Grand Livre reconstitué</span>
+            <span class="tag">🏆 Mission accomplie !</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <p class="footer-text">✦ ATC — Agence Temporelle des Compétences ✦ 5 Scènes · 45 Minutes · 3 Artefacts ✦</p>
+</div>
+
+<script>
+// Stars
+const s = document.getElementById('stars');
+for(let i=0;i<100;i++){
+  const el=document.createElement('div');
+  el.className='star';
+  const size=Math.random()<0.15?3:Math.random()<0.3?2:1;
+  el.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${size}px;height:${size}px;--d:${2+Math.random()*4}s;--delay:${Math.random()*4}s;--o:${0.2+Math.random()*0.7}`;
+  s.appendChild(el);
+}
+</script>
+</body>
+</html>

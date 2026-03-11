@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objectifs & Compétences — ATC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(ellipse at 20% 30%, #1a0a2e 0%, #060810 50%, #0a1020 100%);
+  min-height: 100vh;
+  font-family: 'Crimson Text', Georgia, serif;
+  padding: 50px 20px 60px;
+  overflow-x: hidden;
+}
+
+/* Stars */
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%; background:white;
+  animation:twinkle var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+
+/* Section wrapper */
+.section {
+  max-width:900px; margin:0 auto 60px;
+  position:relative; z-index:5;
+  opacity:0; transform:translateY(30px);
+  animation:fadeUp 0.8s ease forwards;
+}
+.section:nth-child(2){ animation-delay:0.2s; }
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* Section header */
+.section-header {
+  display:flex; align-items:center; gap:15px;
+  margin-bottom:28px;
+}
+.section-icon {
+  width:50px; height:50px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
+  animation:iconFloat 3s ease-in-out infinite;
+}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+.section-title-wrap {}
+.section-label {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:4px; text-transform:uppercase;
+  margin-bottom:4px;
+}
+.section-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(16px,2.5vw,24px); font-weight:700;
+}
+
+/* ══════════════════════════════
+   SECTION 1 — OBJECTIFS
+══════════════════════════════ */
+.s-obj .section-icon {
+  background:rgba(201,145,61,0.15);
+  border:2px solid rgba(201,145,61,0.4);
+  box-shadow:0 0 20px rgba(201,145,61,0.2);
+}
+.s-obj .section-label { color:rgba(201,145,61,0.6); }
+.s-obj .section-title {
+  background:linear-gradient(135deg,#8b5e00,#c9913d,#f0c97a,#c9913d,#8b5e00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+
+/* Objective items */
+.obj-list { display:flex; flex-direction:column; gap:12px; }
+
+.obj-item {
+  display:flex; align-items:center; gap:16px;
+  background:linear-gradient(135deg,rgba(20,15,5,0.9),rgba(30,20,5,0.85));
+  border:1px solid rgba(201,145,61,0.2);
+  border-left:3px solid rgba(201,145,61,0.6);
+  border-radius:0 10px 10px 0;
+  padding:16px 20px;
+  position:relative; overflow:hidden;
+  opacity:0; transform:translateX(-30px);
+  animation:slideInLeft 0.6s ease forwards;
+  transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.obj-item:nth-child(1){animation-delay:0.3s}
+.obj-item:nth-child(2){animation-delay:0.45s}
+.obj-item:nth-child(3){animation-delay:0.6s}
+.obj-item:nth-child(4){animation-delay:0.75s}
+.obj-item:nth-child(5){animation-delay:0.9s}
+@keyframes slideInLeft{to{opacity:1;transform:translateX(0)}}
+
+.obj-item:hover {
+  transform:translateX(6px);
+  box-shadow:0 8px 30px rgba(201,145,61,0.15);
+  border-color:rgba(201,145,61,0.5);
+  border-left-color:#c9913d;
+}
+
+/* Shimmer on hover */
+.obj-item::before {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(201,145,61,0.04),transparent);
+  transform:translateX(-100%); transition:transform 0.5s ease;
+}
+.obj-item:hover::before { transform:translateX(100%); }
+
+.obj-check {
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(201,145,61,0.15);
+  border:2px solid rgba(201,145,61,0.5);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; font-size:14px;
+  box-shadow:0 0 10px rgba(201,145,61,0.2);
+  animation:checkGlow 3s ease-in-out infinite;
+}
+.obj-item:nth-child(odd) .obj-check { animation-delay:0.5s; }
+@keyframes checkGlow{
+  0%,100%{box-shadow:0 0 8px rgba(201,145,61,0.2)}
+  50%{box-shadow:0 0 16px rgba(201,145,61,0.5)}
+}
+
+.obj-number {
+  font-family:'Cinzel',serif; font-size:10px;
+  font-weight:700; color:#c9913d;
+}
+
+.obj-text {
+  font-size:16px; line-height:1.5;
+  color:rgba(235,220,190,0.9);
+}
+.obj-text strong { color:#f0c97a; font-style:normal; }
+
+/* Progress dots */
+.obj-dots {
+  margin-left:auto; display:flex; gap:4px; flex-shrink:0;
+}
+.obj-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:rgba(201,145,61,0.3);
+  animation:dotFill 0.4s ease forwards;
+}
+.obj-dot.filled { background:#c9913d; box-shadow:0 0 4px rgba(201,145,61,0.5); }
+
+/* ══════════════════════════════
+   SECTION 2 — COMPÉTENCES DÉVELOPPÉES
+══════════════════════════════ */
+.s-comp .section-icon {
+  background:rgba(74,179,244,0.15);
+  border:2px solid rgba(74,179,244,0.4);
+  box-shadow:0 0 20px rgba(74,179,244,0.2);
+}
+.s-comp .section-label { color:rgba(74,179,244,0.6); }
+.s-comp .section-title { color:#7dd3f8; text-shadow:0 0 20px rgba(74,179,244,0.3); }
+
+/* Subtitle */
+.comp-subtitle {
+  font-size:14px; font-style:italic;
+  color:rgba(200,190,170,0.5); margin-bottom:20px;
+  margin-left:65px;
+}
+
+/* Skills grid */
+.comp-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:14px;
+}
+
+.comp-card {
+  background:linear-gradient(135deg,rgba(10,15,28,0.95),rgba(15,20,35,0.9));
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px; padding:18px 20px;
+  position:relative; overflow:hidden;
+  opacity:0; transform:translateY(20px) scale(0.97);
+  animation:cardPop 0.5s ease forwards;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+  cursor:default;
+}
+.comp-card:nth-child(1){animation-delay:0.3s}
+.comp-card:nth-child(2){animation-delay:0.4s}
+.comp-card:nth-child(3){animation-delay:0.5s}
+.comp-card:nth-child(4){animation-delay:0.6s}
+.comp-card:nth-child(5){animation-delay:0.7s}
+.comp-card:nth-child(6){animation-delay:0.8s}
+@keyframes cardPop{to{opacity:1;transform:translateY(0) scale(1)}}
+
+.comp-card:hover { transform:translateY(-4px); }
+
+/* Color variants by type */
+.comp-card.savoir-faire {
+  border-color:rgba(201,145,61,0.25);
+  box-shadow:0 4px 20px rgba(201,145,61,0.05);
+}
+.comp-card.savoir-faire:hover { box-shadow:0 10px 35px rgba(201,145,61,0.2); border-color:rgba(201,145,61,0.5); }
+
+.comp-card.savoir-etre {
+  border-color:rgba(74,179,244,0.25);
+  box-shadow:0 4px 20px rgba(74,179,244,0.05);
+}
+.comp-card.savoir-etre:hover { box-shadow:0 10px 35px rgba(74,179,244,0.2); border-color:rgba(74,179,244,0.5); }
+
+.comp-card.savoir {
+  border-color:rgba(150,100,255,0.25);
+  box-shadow:0 4px 20px rgba(150,100,255,0.05);
+}
+.comp-card.savoir:hover { box-shadow:0 10px 35px rgba(150,100,255,0.2); border-color:rgba(150,100,255,0.5); }
+
+/* Card top */
+.comp-card-top {
+  display:flex; justify-content:space-between;
+  align-items:flex-start; margin-bottom:8px;
+}
+
+.comp-name {
+  font-family:'Cinzel',serif; font-size:13px;
+  font-weight:700; color:rgba(235,220,190,0.95);
+  letter-spacing:0.5px;
+}
+
+.comp-badge {
+  font-family:'Cinzel',serif; font-size:8px;
+  letter-spacing:1px; text-transform:uppercase;
+  padding:3px 10px; border-radius:12px; flex-shrink:0;
+  font-weight:700;
+}
+.badge-sf {
+  background:rgba(201,145,61,0.15);
+  border:1px solid rgba(201,145,61,0.4);
+  color:#f0c97a;
+}
+.badge-se {
+  background:rgba(74,179,244,0.15);
+  border:1px solid rgba(74,179,244,0.4);
+  color:#7dd3f8;
+}
+.badge-s {
+  background:rgba(150,100,255,0.15);
+  border:1px solid rgba(150,100,255,0.4);
+  color:#c4a0ff;
+}
+
+.comp-desc {
+  font-size:13px; font-style:italic;
+  color:rgba(190,180,160,0.6); line-height:1.5;
+}
+
+/* Glow line bottom */
+.comp-card::after {
+  content:''; position:absolute;
+  bottom:0; left:0; right:0; height:2px;
+  border-radius:0 0 12px 12px;
+  opacity:0; transition:opacity 0.3s;
+}
+.comp-card.savoir-faire::after { background:linear-gradient(90deg,transparent,rgba(201,145,61,0.6),transparent); }
+.comp-card.savoir-etre::after { background:linear-gradient(90deg,transparent,rgba(74,179,244,0.6),transparent); }
+.comp-card.savoir::after { background:linear-gradient(90deg,transparent,rgba(150,100,255,0.6),transparent); }
+.comp-card:hover::after { opacity:1; }
+
+/* Legend */
+.legend {
+  display:flex; gap:20px; flex-wrap:wrap;
+  margin-top:20px; margin-left:0;
+  justify-content:center;
+}
+.legend-item {
+  display:flex; align-items:center; gap:6px;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:2px; text-transform:uppercase;
+  opacity:0.6;
+}
+.legend-dot {
+  width:8px; height:8px; border-radius:50%;
+}
+
+/* Divider */
+.divider {
+  display:flex; align-items:center; gap:15px;
+  margin:10px 0 50px; position:relative; z-index:5;
+}
+.div-line {
+  flex:1; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,145,61,0.3),transparent);
+}
+.div-icon { color:rgba(201,145,61,0.5); font-size:16px; animation:divSpin 8s linear infinite; }
+@keyframes divSpin{to{transform:rotate(360deg)}}
+
+/* Footer */
+.footer {
+  text-align:center; margin-top:20px;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:3px; color:rgba(201,145,61,0.3);
+  text-transform:uppercase; position:relative; z-index:5;
+}
+
+@media(max-width:600px){
+  .comp-grid{grid-template-columns:1fr}
+  .comp-subtitle{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<!-- SECTION 1 — OBJECTIFS -->
+<div class="section s-obj">
+  <div class="section-header">
+    <div class="section-icon">🎯</div>
+    <div class="section-title-wrap">
+      <div class="section-label">Mission pédagogique</div>
+      <div class="section-title">Objectifs d'apprentissage</div>
+    </div>
+  </div>
+
+  <div class="obj-list">
+    <div class="obj-item">
+      <div class="obj-check"><span class="obj-number">01</span></div>
+      <div class="obj-text">Définir avec précision les concepts de <strong>savoir</strong>, <strong>savoir-faire</strong> et <strong>savoir-être</strong></div>
+      <div class="obj-dots">
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+      </div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-check"><span class="obj-number">02</span></div>
+      <div class="obj-text">Classer des exemples concrets dans les bonnes <strong>catégories de compétences</strong></div>
+      <div class="obj-dots">
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+      </div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-check"><span class="obj-number">03</span></div>
+      <div class="obj-text">Identifier ses propres <strong>compétences transférables</strong> dans un contexte de mobilité professionnelle</div>
+      <div class="obj-dots">
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+      </div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-check"><span class="obj-number">04</span></div>
+      <div class="obj-text">Comprendre la valeur des <strong>soft skills</strong> dans le monde du travail actuel</div>
+      <div class="obj-dots">
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+      </div>
+    </div>
+    <div class="obj-item">
+      <div class="obj-check"><span class="obj-number">05</span></div>
+      <div class="obj-text">Développer une <strong>posture réflexive</strong> sur son propre parcours de compétences</div>
+      <div class="obj-dots">
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+        <div class="obj-dot filled"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DIVIDER -->
+<div class="divider" style="max-width:900px;margin:0 auto 50px;position:relative;z-index:5;">
+  <div class="div-line"></div>
+  <span class="div-icon">✦</span>
+  <div class="div-line"></div>
+</div>
+
+<!-- SECTION 2 — COMPÉTENCES DÉVELOPPÉES -->
+<div class="section s-comp">
+  <div class="section-header">
+    <div class="section-icon">🚀</div>
+    <div class="section-title-wrap">
+      <div class="section-label">Ce que vous allez développer</div>
+      <div class="section-title">Compétences développées par l'escape game</div>
+    </div>
+  </div>
+  <p class="comp-subtitle">En jouant, vous développez vous-mêmes ces compétences !</p>
+
+  <div class="comp-grid">
+    <div class="comp-card savoir-faire">
+      <div class="comp-card-top">
+        <div class="comp-name">🧩 Résolution de problèmes</div>
+        <span class="comp-badge badge-sf">Savoir-Faire</span>
+      </div>
+      <div class="comp-desc">Résoudre les énigmes</div>
+    </div>
+    <div class="comp-card savoir-etre">
+      <div class="comp-card-top">
+        <div class="comp-name">⏱️ Gestion du temps</div>
+        <span class="comp-badge badge-se">Savoir-Être</span>
+      </div>
+      <div class="comp-desc">Respecter le chronomètre</div>
+    </div>
+    <div class="comp-card savoir">
+      <div class="comp-card-top">
+        <div class="comp-name">📖 Lecture et compréhension</div>
+        <span class="comp-badge badge-s">Savoir</span>
+      </div>
+      <div class="comp-desc">Lire les consignes et indices</div>
+    </div>
+    <div class="comp-card savoir-faire">
+      <div class="comp-card-top">
+        <div class="comp-name">🔍 Pensée critique</div>
+        <span class="comp-badge badge-sf">Savoir-Faire</span>
+      </div>
+      <div class="comp-desc">Analyser et trier les informations</div>
+    </div>
+    <div class="comp-card savoir-etre">
+      <div class="comp-card-top">
+        <div class="comp-name">💪 Persévérance</div>
+        <span class="comp-badge badge-se">Savoir-Être</span>
+      </div>
+      <div class="comp-desc">Continuer malgré les difficultés</div>
+    </div>
+    <div class="comp-card savoir-etre">
+      <div class="comp-card-top">
+        <div class="comp-name">🌟 Autonomie</div>
+        <span class="comp-badge badge-se">Savoir-Être</span>
+      </div>
+      <div class="comp-desc">Progresser seul dans les scènes</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#c9913d"></div>
+      <span style="color:rgba(201,145,61,0.7)">Savoir-Faire</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#4ab3f4"></div>
+      <span style="color:rgba(74,179,244,0.7)">Savoir-Être</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#9664ff"></div>
+      <span style="color:rgba(150,100,255,0.7)">Savoir</span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">✦ ATC — Agence Temporelle des Compétences ✦</div>
+
+<script>
+const s=document.getElementById('stars');
+for(let i=0;i<100;i++){
+  const el=document.createElement('div');
+  el.className='star';
+  const sz=Math.random()<0.15?3:Math.random()<0.3?2:1;
+  el.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;--o:${0.2+Math.random()*0.6}`;
+  s.appendChild(el);
+}
+</script>
+</body>
+</html>

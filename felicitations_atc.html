@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Félicitations — ATC Mission Accomplie</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(ellipse at 20% 30%, #1a0a2e 0%, #060810 50%, #0a1020 100%);
+  min-height: 100vh;
+  font-family: 'Crimson Text', Georgia, serif;
+  overflow-x: hidden;
+  padding: 40px 20px 60px;
+}
+
+/* Stars */
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%; background:white;
+  animation:twinkle var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+
+/* Confetti */
+.confetti {
+  position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden;
+}
+.conf {
+  position:absolute; width:8px; height:8px; border-radius:2px;
+  animation: confFall var(--cd) ease-in infinite var(--cdl);
+  top: -10px;
+}
+@keyframes confFall {
+  0%{transform:translateY(-10px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+.wrapper {
+  max-width: 750px; margin: 0 auto;
+  position: relative; z-index: 5;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 35px;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  animation: fadeDown 1s ease forwards;
+}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-30px)}to{opacity:1;transform:translateY(0)}}
+
+.atc-badge {
+  display:inline-flex; align-items:center; gap:10px;
+  background:rgba(201,145,61,0.1); border:1px solid rgba(201,145,61,0.3);
+  border-radius:30px; padding:6px 20px; margin-bottom:15px;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:4px; color:#c9913d; text-transform:uppercase;
+}
+
+.trophy-row {
+  display:flex; justify-content:center; gap:20px;
+  margin-bottom:20px;
+}
+.trophy {
+  font-size:50px;
+  animation: trophyBounce 0.6s ease forwards;
+  opacity:0; transform:scale(0);
+}
+.trophy:nth-child(1){animation-delay:0.2s}
+.trophy:nth-child(2){animation-delay:0.5s;font-size:70px}
+.trophy:nth-child(3){animation-delay:0.8s}
+@keyframes trophyBounce{
+  0%{opacity:0;transform:scale(0) rotate(-10deg)}
+  60%{transform:scale(1.2) rotate(5deg)}
+  100%{opacity:1;transform:scale(1) rotate(0deg)}
+}
+
+.main-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(22px,5vw,42px); font-weight:900;
+  background:linear-gradient(135deg,#8b5e00,#c9913d,#f0c97a,#c9913d,#8b5e00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:shimmer 3s ease-in-out infinite, fadeDown 1s ease 0.3s both;
+  margin-bottom:10px;
+}
+@keyframes shimmer{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+
+.sub-title {
+  font-family:'Cinzel',serif; font-size:11px;
+  letter-spacing:4px; color:rgba(201,145,61,0.5);
+  text-transform:uppercase;
+  animation: fadeDown 1s ease 0.5s both;
+}
+
+/* ── MESSAGE DU DIRECTEUR ── */
+.director-card {
+  width:100%;
+  background:linear-gradient(135deg,rgba(20,15,35,0.95),rgba(15,10,25,0.9));
+  border:1px solid rgba(201,145,61,0.25);
+  border-left:4px solid rgba(201,145,61,0.6);
+  border-radius:0 12px 12px 0;
+  padding:30px 35px;
+  position:relative; overflow:hidden;
+  animation: fadeUp 0.8s ease 0.6s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.director-card::before {
+  content:'✦'; position:absolute;
+  font-size:120px; color:rgba(201,145,61,0.03);
+  right:-20px; top:-20px;
+}
+
+.director-label {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:4px; color:rgba(201,145,61,0.5);
+  text-transform:uppercase; margin-bottom:15px;
+  display:flex; align-items:center; gap:10px;
+}
+.director-label::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg,rgba(201,145,61,0.3),transparent);
+}
+
+.director-text {
+  font-size:clamp(16px,2.5vw,19px); font-style:italic;
+  color:rgba(235,220,195,0.9); line-height:1.9;
+}
+.director-text strong { font-style:normal; color:#f0c97a; }
+.director-text em { color:rgba(180,140,255,0.9); font-style:italic; }
+
+.director-sig {
+  margin-top:20px; text-align:right;
+  font-family:'Cinzel',serif; font-size:11px;
+  letter-spacing:2px; color:rgba(201,145,61,0.5);
+}
+
+/* ── ARTEFACTS ── */
+.artefacts-section {
+  width:100%; text-align:center;
+  animation: fadeUp 0.8s ease 0.8s both;
+}
+
+.section-title {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:5px; color:rgba(201,145,61,0.4);
+  text-transform:uppercase; margin-bottom:20px;
+}
+
+.artefacts-row {
+  display:flex; justify-content:center; gap:20px;
+  flex-wrap:wrap;
+}
+
+.artefact-card {
+  background:linear-gradient(135deg,rgba(15,12,25,0.95),rgba(20,15,35,0.9));
+  border-radius:12px; padding:20px 25px;
+  text-align:center; flex:1; min-width:160px; max-width:200px;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+  animation: artefactPop 0.6s ease forwards;
+  opacity:0; transform:scale(0.8);
+}
+.artefact-card:nth-child(1){animation-delay:1s;border:1px solid rgba(201,145,61,0.25)}
+.artefact-card:nth-child(2){animation-delay:1.2s;border:1px solid rgba(74,179,244,0.25)}
+.artefact-card:nth-child(3){animation-delay:1.4s;border:1px solid rgba(180,100,255,0.25)}
+@keyframes artefactPop{to{opacity:1;transform:scale(1)}}
+
+.artefact-card:hover { transform:translateY(-5px); }
+.artefact-card:nth-child(1):hover { box-shadow:0 15px 35px rgba(201,145,61,0.2); }
+.artefact-card:nth-child(2):hover { box-shadow:0 15px 35px rgba(74,179,244,0.2); }
+.artefact-card:nth-child(3):hover { box-shadow:0 15px 35px rgba(180,100,255,0.2); }
+
+.artefact-icon { font-size:40px; margin-bottom:10px; display:block; animation:iconFloat 3s ease-in-out infinite; }
+.artefact-card:nth-child(2) .artefact-icon{animation-delay:1s}
+.artefact-card:nth-child(3) .artefact-icon{animation-delay:2s}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.artefact-name {
+  font-family:'Cinzel',serif; font-size:11px;
+  letter-spacing:1px; font-weight:700; margin-bottom:4px;
+}
+.artefact-card:nth-child(1) .artefact-name { color:#f0c97a; }
+.artefact-card:nth-child(2) .artefact-name { color:#7dd3f8; }
+.artefact-card:nth-child(3) .artefact-name { color:#d4a0ff; }
+
+.artefact-epoch {
+  font-size:12px; font-style:italic;
+  color:rgba(190,180,160,0.5);
+}
+
+/* ── COMPÉTENCES ACQUISES ── */
+.competences-section {
+  width:100%;
+  animation: fadeUp 0.8s ease 1.2s both;
+}
+
+.comp-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+
+.comp-item {
+  display:flex; align-items:center; gap:12px;
+  background:linear-gradient(135deg,rgba(15,12,25,0.95),rgba(20,15,35,0.9));
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px; padding:14px 18px;
+  transition:transform 0.3s ease, border-color 0.3s ease;
+  animation: fadeUp 0.5s ease forwards; opacity:0;
+}
+.comp-item:nth-child(1){animation-delay:1.3s}
+.comp-item:nth-child(2){animation-delay:1.4s}
+.comp-item:nth-child(3){animation-delay:1.5s}
+.comp-item:nth-child(4){animation-delay:1.6s}
+.comp-item:nth-child(5){animation-delay:1.7s}
+.comp-item:nth-child(6){animation-delay:1.8s}
+
+.comp-item:hover { transform:translateX(5px); border-color:rgba(201,145,61,0.3); }
+
+.comp-check {
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(68,221,136,0.15);
+  border:1px solid rgba(68,221,136,0.4);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; flex-shrink:0;
+  box-shadow:0 0 8px rgba(68,221,136,0.2);
+}
+.comp-text {
+  font-size:14px; color:rgba(220,210,190,0.85); line-height:1.4;
+}
+.comp-text strong { color:#f0c97a; font-style:normal; font-size:13px; }
+
+/* ── CITATION FINALE ── */
+.citation-box {
+  width:100%;
+  background:linear-gradient(135deg,rgba(201,145,61,0.06),rgba(160,100,20,0.04));
+  border:1px solid rgba(201,145,61,0.2);
+  border-radius:12px; padding:30px 35px;
+  text-align:center; position:relative; overflow:hidden;
+  animation: fadeUp 0.8s ease 1.8s both;
+}
+.citation-box::before {
+  content:'"'; position:absolute;
+  font-family:'Cinzel Decorative',serif;
+  font-size:150px; color:rgba(201,145,61,0.04);
+  top:-20px; left:10px; line-height:1;
+}
+
+.citation-text {
+  font-size:clamp(17px,2.5vw,21px); font-style:italic;
+  color:rgba(235,220,195,0.85); line-height:1.8;
+  position:relative; z-index:1;
+}
+.citation-text strong { color:#f0c97a; font-style:normal; }
+
+.citation-author {
+  margin-top:15px;
+  font-family:'Cinzel',serif; font-size:10px;
+  letter-spacing:3px; color:rgba(201,145,61,0.4);
+  text-transform:uppercase;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  display:flex; align-items:center; gap:15px; width:100%;
+}
+.div-line { flex:1; height:1px; background:linear-gradient(90deg,transparent,rgba(201,145,61,0.2),transparent); }
+.div-icon { color:rgba(201,145,61,0.4); font-size:14px; animation:divSpin 8s linear infinite; }
+@keyframes divSpin{to{transform:rotate(360deg)}}
+
+/* ── FOOTER ── */
+.footer {
+  text-align:center;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:3px; color:rgba(201,145,61,0.25);
+  text-transform:uppercase;
+  animation: fadeUp 0.8s ease 2s both;
+}
+
+@media(max-width:600px){
+  .artefacts-row{flex-direction:column;align-items:center}
+  .director-card{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="confetti" id="confetti"></div>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="atc-badge">✦ Agence Temporelle des Compétences ✦</div>
+    <div class="trophy-row">
+      <span class="trophy">⭐</span>
+      <span class="trophy">🏆</span>
+      <span class="trophy">⭐</span>
+    </div>
+    <h1 class="main-title">Mission Accomplie !</h1>
+    <p class="sub-title">Agent Temporel — Niveau Supérieur</p>
+  </div>
+
+  <!-- Message du Directeur -->
+  <div class="director-card">
+    <div class="director-label">📜 Message du Directeur de l'ATC</div>
+    <div class="director-text">
+      "Félicitations, Agent Temporel ! 🌀<br><br>
+      Vous avez traversé <strong>trois époques</strong>, résisté aux pièges du <em>Maître Obscur</em> et récupéré les <strong>trois artefacts sacrés</strong> du Grand Livre des Compétences.<br><br>
+      Grâce à votre courage et votre intelligence, les candidats à l'emploi du présent peuvent à nouveau <strong>valoriser leurs compétences</strong> : leurs <strong>Savoirs</strong>, leurs <strong>Savoir-Faire</strong> et leurs <strong>Savoir-Être</strong>. Le marché du travail est sauvé !<br><br>
+      Vous avez prouvé aujourd'hui que comprendre ses compétences, c'est la clé pour <strong>construire son avenir professionnel</strong>. Cette mission vous a transformé — vous n'êtes plus un simple apprenant, vous êtes désormais un <strong>Expert des Compétences Temporelles</strong> ! ✨"
+    </div>
+    <div class="director-sig">— Le Directeur Suprême de l'ATC ✦</div>
+  </div>
+
+  <!-- Artefacts collectés -->
+  <div class="artefacts-section">
+    <div class="section-title">✦ Artefacts récupérés ✦</div>
+    <div class="artefacts-row">
+      <div class="artefact-card">
+        <span class="artefact-icon">📜</span>
+        <div class="artefact-name">Parchemin du Savoir</div>
+        <div class="artefact-epoch">Moyen Âge — 1350</div>
+      </div>
+      <div class="artefact-card">
+        <span class="artefact-icon">⚙️</span>
+        <div class="artefact-name">Engrenage du Savoir-Faire</div>
+        <div class="artefact-epoch">Révolution — 1880</div>
+      </div>
+      <div class="artefact-card">
+        <span class="artefact-icon">💎</span>
+        <div class="artefact-name">Cristal du Savoir-Être</div>
+        <div class="artefact-epoch">Futur — 2150</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="div-line"></div><span class="div-icon">✦</span><div class="div-line"></div></div>
+
+  <!-- Compétences acquises -->
+  <div class="competences-section">
+    <div class="section-title" style="text-align:center;margin-bottom:20px">✦ Ce que tu as appris aujourd'hui ✦</div>
+    <div class="comp-grid">
+      <div class="comp-item">
+        <div class="comp-check">✓</div>
+        <div class="comp-text"><strong>Savoir</strong><br>Connaissance théorique acquise</div>
+      </div>
+      <div class="comp-item">
+        <div class="comp-check">✓</div>
+        <div class="comp-text"><strong>Savoir-Faire</strong><br>Compétence pratique et opérationnelle</div>
+      </div>
+      <div class="comp-item">
+        <div class="comp-check">✓</div>
+        <div class="comp-text"><strong>Savoir-Être</strong><br>Qualité comportementale et relationnelle</div>
+      </div>
+      <div class="comp-item">
+        <div class="comp-check">✓</div>
+        <div class="comp-text"><strong>Compétences transférables</strong><br>Réutilisables dans tout contexte</div>
+      </div>
+      <div class="comp-item">
+        <div class="comp-check">✓</div>
+        <div class="comp-text"><strong>Valoriser ses compétences</strong><br>Les identifier et les nommer</div>
+      </div>
+      <div class="comp-item">
+        <div class="comp-check">✓</div>
+        <div class="comp-text"><strong>Posture réflexive</strong><br>Analyser son propre parcours</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="div-line"></div><span class="div-icon">✦</span><div class="div-line"></div></div>
+
+  <!-- Citation -->
+  <div class="citation-box">
+    <div class="citation-text">
+      "Chaque compétence que tu possèdes est un <strong>trésor intemporel</strong>.<br>
+      Elle traverse les époques, s'adapte aux contextes,<br>
+      et t'appartient pour toujours — <strong>personne ne peut te l'enlever</strong>."
+    </div>
+    <div class="citation-author">✦ Le Grand Livre des Compétences — ATC ✦</div>
+  </div>
+
+  <div class="footer">✦ ATC — Agence Temporelle des Compétences · Merci d'avoir joué ! ✦</div>
+
+</div>
+
+<script>
+// Stars
+const s = document.getElementById('stars');
+for(let i = 0; i < 120; i++) {
+  const el = document.createElement('div');
+  el.className = 'star';
+  const sz = Math.random() < 0.15 ? 3 : Math.random() < 0.3 ? 2 : 1;
+  el.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;--o:${0.2+Math.random()*0.6}`;
+  s.appendChild(el);
+}
+
+// Confetti
+const colors = ['#f0c97a','#c9913d','#7dd3f8','#d4a0ff','#44dd88','#ff9080','#ffffff'];
+const conf = document.getElementById('confetti');
+for(let i = 0; i < 80; i++) {
+  const el = document.createElement('div');
+  el.className = 'conf';
+  el.style.cssText = `
+    left:${Math.random()*100}%;
+    background:${colors[Math.floor(Math.random()*colors.length)]};
+    width:${4+Math.random()*8}px;
+    height:${4+Math.random()*8}px;
+    border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+    --cd:${3+Math.random()*5}s;
+    --cdl:${Math.random()*5}s;
+  `;
+  conf.appendChild(el);
+}
+
+// Victory sound
+setTimeout(() => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523,659,784,1047,1319,1047,784,1047,1319];
+    notes.forEach((freq, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq; o.type = 'sine';
+      g.gain.setValueAtTime(0.12, ctx.currentTime + i*0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.15 + 0.4);
+      o.start(ctx.currentTime + i*0.15);
+      o.stop(ctx.currentTime + i*0.15 + 0.5);
+    });
+  } catch(e) {}
+}, 500);
+</script>
+</body>
+</html>

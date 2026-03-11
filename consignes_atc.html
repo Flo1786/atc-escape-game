@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consignes — ATC Escape Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: radial-gradient(ellipse at 20% 30%, #1a0a2e 0%, #060810 50%, #0a1020 100%);
+  min-height: 100vh;
+  font-family: 'Crimson Text', Georgia, serif;
+  padding: 50px 20px 60px;
+  overflow-x: hidden;
+}
+
+.stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.star {
+  position:absolute; border-radius:50%; background:white;
+  animation:twinkle var(--d) ease-in-out infinite var(--dl);
+}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+
+.wrapper {
+  max-width: 800px; margin: 0 auto;
+  position: relative; z-index: 5;
+}
+
+/* Header */
+.header {
+  text-align: center; margin-bottom: 40px;
+  animation: fadeDown 0.8s ease forwards;
+}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+.header-badge {
+  display:inline-flex; align-items:center; gap:10px;
+  background:rgba(201,145,61,0.1); border:1px solid rgba(201,145,61,0.3);
+  border-radius:30px; padding:6px 20px; margin-bottom:18px;
+}
+.header-badge span {
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:4px; color:#c9913d; text-transform:uppercase;
+}
+.badge-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:#4ab3f4; box-shadow:0 0 8px #4ab3f4;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.8);opacity:0.5}}
+
+.main-title {
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(20px,4vw,34px); font-weight:900;
+  background:linear-gradient(135deg,#8b5e00,#c9913d,#f0c97a,#c9913d,#8b5e00);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; background-size:200% auto;
+  animation:shimmer 4s ease-in-out infinite;
+  margin-bottom:8px;
+}
+@keyframes shimmer{0%{background-position:0%}50%{background-position:100%}100%{background-position:0%}}
+
+.sub-title {
+  font-family:'Cinzel',serif; font-size:11px;
+  letter-spacing:4px; color:rgba(201,145,61,0.5);
+  text-transform:uppercase;
+}
+
+/* Alert box */
+.alert-box {
+  background:linear-gradient(135deg,rgba(255,100,100,0.1),rgba(200,50,50,0.08));
+  border:1px solid rgba(255,100,100,0.3);
+  border-left:4px solid #ff6464;
+  border-radius:0 8px 8px 0;
+  padding:18px 22px;
+  margin-bottom:30px;
+  display:flex; align-items:center; gap:15px;
+  animation:fadeUp 0.8s ease 0.2s forwards; opacity:0;
+}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+.alert-icon { font-size:28px; animation:alertPulse 1.5s ease-in-out infinite; }
+@keyframes alertPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+.alert-text {
+  font-family:'Cinzel',serif; font-size:12px;
+  letter-spacing:1px; color:#ff9080; line-height:1.6;
+}
+.alert-text strong { color:#ff6464; font-size:14px; }
+
+/* Steps */
+.steps { display:flex; flex-direction:column; gap:16px; margin-bottom:30px; }
+
+.step {
+  display:flex; gap:18px; align-items:flex-start;
+  background:linear-gradient(135deg,rgba(15,12,25,0.95),rgba(20,15,35,0.9));
+  border:1px solid rgba(201,145,61,0.15);
+  border-radius:10px; padding:18px 22px;
+  opacity:0; transform:translateX(-20px);
+  animation:slideIn 0.6s ease forwards;
+  transition:transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position:relative; overflow:hidden;
+}
+.step:nth-child(1){animation-delay:0.3s}
+.step:nth-child(2){animation-delay:0.45s}
+.step:nth-child(3){animation-delay:0.6s}
+.step:nth-child(4){animation-delay:0.75s}
+.step:nth-child(5){animation-delay:0.9s}
+.step:nth-child(6){animation-delay:1.05s}
+@keyframes slideIn{to{opacity:1;transform:translateX(0)}}
+
+.step:hover {
+  transform:translateX(6px);
+  border-color:rgba(201,145,61,0.4);
+  box-shadow:0 8px 25px rgba(201,145,61,0.1);
+}
+
+.step::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(201,145,61,0.03),transparent);
+  transform:translateX(-100%); transition:transform 0.5s ease;
+}
+.step:hover::before { transform:translateX(100%); }
+
+.step-num {
+  width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+  font-family:'Cinzel',serif; font-size:14px; font-weight:700;
+  animation:numGlow 3s ease-in-out infinite;
+}
+@keyframes numGlow{
+  0%,100%{box-shadow:0 0 8px currentColor}
+  50%{box-shadow:0 0 20px currentColor}
+}
+
+.step-content {}
+.step-title {
+  font-family:'Cinzel',serif; font-size:13px;
+  font-weight:700; margin-bottom:5px; letter-spacing:1px;
+}
+.step-desc {
+  font-size:15px; line-height:1.6;
+  color:rgba(210,200,180,0.8); font-style:italic;
+}
+.step-desc strong { font-style:normal; }
+
+/* Special step — retour */
+.step-retour {
+  background:linear-gradient(135deg,rgba(74,179,244,0.08),rgba(26,58,92,0.1));
+  border-color:rgba(74,179,244,0.3);
+}
+.step-retour:hover { border-color:rgba(74,179,244,0.6); box-shadow:0 8px 25px rgba(74,179,244,0.15); }
+.step-retour .step-num { background:rgba(74,179,244,0.15); border:2px solid rgba(74,179,244,0.5); color:#4ab3f4; }
+.step-retour .step-title { color:#7dd3f8; }
+
+/* Retour button visual */
+.retour-visual {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(74,179,244,0.1); border:1px solid rgba(74,179,244,0.4);
+  border-radius:6px; padding:6px 14px; margin-top:8px;
+  font-family:'Cinzel',serif; font-size:11px;
+  color:#7dd3f8; letter-spacing:1px;
+  animation:retourPulse 2s ease-in-out infinite;
+}
+@keyframes retourPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(74,179,244,0)}
+  50%{box-shadow:0 0 0 6px rgba(74,179,244,0.1)}
+}
+
+/* Info grid */
+.info-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:14px; margin-bottom:30px;
+  animation:fadeUp 0.8s ease 1.2s forwards; opacity:0;
+}
+
+.info-card {
+  background:linear-gradient(135deg,rgba(15,12,25,0.95),rgba(20,15,35,0.9));
+  border:1px solid rgba(201,145,61,0.2);
+  border-radius:10px; padding:16px 18px;
+  text-align:center;
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+.info-card:hover { transform:translateY(-3px); box-shadow:0 8px 25px rgba(201,145,61,0.15); }
+
+.info-icon { font-size:24px; margin-bottom:8px; display:block; animation:iconFloat 3s ease-in-out infinite; }
+.info-icon:nth-child(1){animation-delay:0s}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+.info-label {
+  font-family:'Cinzel',serif; font-size:8px;
+  letter-spacing:3px; color:rgba(201,145,61,0.6);
+  text-transform:uppercase; margin-bottom:4px;
+}
+.info-value {
+  font-size:15px; color:rgba(235,220,190,0.9);
+  font-weight:600;
+}
+
+/* Oath box */
+.oath-box {
+  background:linear-gradient(135deg,rgba(201,145,61,0.08),rgba(160,100,20,0.05));
+  border:1px solid rgba(201,145,61,0.3);
+  border-radius:10px; padding:25px 30px;
+  text-align:center; margin-bottom:30px;
+  position:relative; overflow:hidden;
+  animation:fadeUp 0.8s ease 1.4s forwards; opacity:0;
+}
+.oath-box::before {
+  content:'✦';
+  position:absolute; font-size:80px; color:rgba(201,145,61,0.04);
+  top:50%; left:50%; transform:translate(-50%,-50%);
+}
+.oath-title {
+  font-family:'Cinzel',serif; font-size:10px;
+  letter-spacing:4px; color:rgba(201,145,61,0.5);
+  text-transform:uppercase; margin-bottom:12px;
+}
+.oath-text {
+  font-size:17px; font-style:italic;
+  color:rgba(235,220,190,0.85); line-height:1.8;
+}
+.oath-text strong { color:#f0c97a; font-style:normal; }
+
+/* Footer */
+.footer {
+  text-align:center;
+  font-family:'Cinzel',serif; font-size:9px;
+  letter-spacing:3px; color:rgba(201,145,61,0.3);
+  text-transform:uppercase;
+  animation:fadeUp 0.8s ease 1.6s forwards; opacity:0;
+}
+
+@media(max-width:600px){
+  .info-grid{grid-template-columns:1fr}
+  .alert-box{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge">
+      <div class="badge-dot"></div>
+      <span>Briefing Agent Temporel</span>
+      <div class="badge-dot"></div>
+    </div>
+    <h1 class="main-title">Consignes de Mission</h1>
+    <p class="sub-title">Lisez attentivement avant de commencer</p>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-box">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-text">
+      <strong>IMPORTANT !</strong><br>
+      Après chaque activité, utilisez le bouton <strong>← Retour</strong> de votre navigateur pour revenir au Virtual Tour et continuer votre mission !
+    </div>
+  </div>
+
+  <!-- Info grid -->
+  <div class="info-grid">
+    <div class="info-card">
+      <span class="info-icon">⏱️</span>
+      <div class="info-label">Durée totale</div>
+      <div class="info-value">45 minutes</div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">🌀</span>
+      <div class="info-label">Scènes</div>
+      <div class="info-value">5 époques à explorer</div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">🏆</span>
+      <div class="info-label">Objectif</div>
+      <div class="info-value">3 artefacts à trouver</div>
+    </div>
+    <div class="info-card">
+      <span class="info-icon">🎭</span>
+      <div class="info-label">Votre rôle</div>
+      <div class="info-value">Agent Temporel ATC</div>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps">
+
+    <div class="step" style="border-left:3px solid rgba(201,145,61,0.6)">
+      <div class="step-num" style="background:rgba(201,145,61,0.15);border:2px solid rgba(201,145,61,0.5);color:#c9913d">01</div>
+      <div class="step-content">
+        <div class="step-title" style="color:#f0c97a">🎧 Activez le son</div>
+        <div class="step-desc">Mettez vos écouteurs ou activez le son de votre appareil. Chaque époque a sa propre <strong>musique d'ambiance</strong> pour une immersion totale !</div>
+      </div>
+    </div>
+
+    <div class="step" style="border-left:3px solid rgba(180,100,255,0.6)">
+      <div class="step-num" style="background:rgba(180,100,255,0.15);border:2px solid rgba(180,100,255,0.5);color:#b464ff">02</div>
+      <div class="step-content">
+        <div class="step-title" style="color:#d4a0ff">🌀 Explorez en 360°</div>
+        <div class="step-desc">Faites glisser votre souris (ou votre doigt) pour explorer chaque scène à <strong>360 degrés</strong>. Des objets et indices sont cachés partout !</div>
+      </div>
+    </div>
+
+    <div class="step" style="border-left:3px solid rgba(201,145,61,0.6)">
+      <div class="step-num" style="background:rgba(201,145,61,0.15);border:2px solid rgba(201,145,61,0.5);color:#c9913d">03</div>
+      <div class="step-content">
+        <div class="step-title" style="color:#f0c97a">🔍 Cliquez sur les hotspots</div>
+        <div class="step-desc">Des <strong>points lumineux</strong> apparaissent dans la scène. Cliquez dessus pour découvrir des indices, des informations ou des énigmes à résoudre !</div>
+      </div>
+    </div>
+
+    <div class="step step-retour">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <div class="step-title">← Revenez après chaque activité !</div>
+        <div class="step-desc">Certains hotspots ouvrent une <strong>activité interactive</strong>. Une fois l'activité terminée, cliquez sur le bouton Retour de votre navigateur pour revenir à la scène 360° !</div>
+        <div class="retour-visual">
+          <span>←</span>
+          <span>Bouton Retour du navigateur</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step" style="border-left:3px solid rgba(0,200,180,0.6)">
+      <div class="step-num" style="background:rgba(0,200,180,0.15);border:2px solid rgba(0,200,180,0.5);color:#00c8b4">05</div>
+      <div class="step-content">
+        <div class="step-title" style="color:#00e8d0">🌀 Changez d'époque</div>
+        <div class="step-desc">Une fois l'énigme résolue, trouvez le <strong>portail temporel</strong> dans la scène pour voyager vers la prochaine époque !</div>
+      </div>
+    </div>
+
+    <div class="step" style="border-left:3px solid rgba(255,100,100,0.6)">
+      <div class="step-num" style="background:rgba(255,100,100,0.15);border:2px solid rgba(255,100,100,0.5);color:#ff6464">06</div>
+      <div class="step-content">
+        <div class="step-title" style="color:#ff9080">🏆 Reconstituez le Grand Livre</div>
+        <div class="step-desc">Collectez les <strong>3 artefacts</strong> cachés dans les 3 époques et reconstituez le Grand Livre des Compétences avant la fermeture du portail !</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Oath -->
+  <div class="oath-box">
+    <div class="oath-title">✦ Serment de l'Agent Temporel ✦</div>
+    <div class="oath-text">
+      "Je jure de <strong>voyager avec courage</strong> à travers les époques,<br>
+      de <strong>résoudre les énigmes</strong> avec intelligence,<br>
+      et de <strong>reconstituer le Grand Livre</strong> avant que le portail ne se referme.<br>
+      Que la mission commence ! 🌀"
+    </div>
+  </div>
+
+  <div class="footer">✦ ATC — Agence Temporelle des Compétences · Bonne chance Agent ! ✦</div>
+
+</div>
+
+<script>
+const s=document.getElementById('stars');
+for(let i=0;i<100;i++){
+  const el=document.createElement('div');
+  el.className='star';
+  const sz=Math.random()<0.15?3:Math.random()<0.3?2:1;
+  el.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${2+Math.random()*4}s;--dl:${Math.random()*4}s;--o:${0.2+Math.random()*0.6}`;
+  s.appendChild(el);
+}
+</script>
+</body>
+</html>
