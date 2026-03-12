@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les Plans de la Machine — ATC</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060810;min-height:100vh;font-family:'Cinzel',serif;overflow-x:hidden;padding:30px 20px 60px}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--d) ease-in-out infinite var(--dl)}
+@keyframes twinkle{0%,100%{opacity:var(--o)}50%{opacity:0.05}}
+.wrapper{position:relative;z-index:5;max-width:750px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:25px}
+.act-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 18px;border-radius:20px;margin-bottom:12px;font-size:9px;letter-spacing:4px;text-transform:uppercase;background:rgba(201,145,61,0.1);border:1px solid rgba(201,145,61,0.3);color:#f0c97a}
+.act-title{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,4vw,28px);font-weight:900;color:#f0c97a;text-shadow:0 0 20px rgba(201,145,61,0.4);margin-bottom:8px;text-align:center}
+.act-subtitle{font-family:'Crimson Text',serif;font-size:15px;font-style:italic;color:rgba(210,200,180,0.7);line-height:1.6;text-align:center}
+.progress-top{display:flex;justify-content:space-between;font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);margin-bottom:6px;text-transform:uppercase}
+.progress-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;width:100%}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.5s ease;background:linear-gradient(90deg,#c9913d,#f0c97a)}
+.question-card{width:100%;background:rgba(10,8,20,0.92);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:20px;border:1px solid rgba(255,255,255,0.06);animation:cardIn 0.5s ease}
+@keyframes cardIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.q-type-badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:9px;letter-spacing:2px;text-transform:uppercase;background:rgba(201,145,61,0.1);border:1px solid rgba(201,145,61,0.3);color:#f0c97a;margin-bottom:4px}
+.q-text{font-family:'Crimson Text',serif;font-size:clamp(17px,3vw,21px);color:rgba(235,225,205,0.95);line-height:1.6}
+.options{display:flex;flex-direction:column;gap:10px}
+.option{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.25s;font-family:'Crimson Text',serif;font-size:16px;color:rgba(210,200,180,0.9)}
+.option:hover{border-color:rgba(255,255,255,0.2);background:rgba(255,255,255,0.06);transform:translateX(4px)}
+.option.correct{border-color:#44dd88!important;background:rgba(68,221,136,0.1)!important;color:#44dd88!important}
+.option.wrong{border-color:#ff4422!important;background:rgba(255,68,34,0.08)!important;color:#ff6644!important}
+.option.disabled{pointer-events:none;opacity:0.5}
+.opt-letter{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05)}
+.tf-buttons{display:flex;gap:15px;justify-content:center}
+.tf-btn{flex:1;max-width:200px;padding:18px;border-radius:10px;border:2px solid;cursor:pointer;font-family:'Cinzel',serif;font-size:16px;letter-spacing:2px;transition:all 0.25s;text-align:center;background:transparent}
+.tf-true{border-color:rgba(68,221,136,0.4);color:#44dd88}
+.tf-false{border-color:rgba(255,68,34,0.4);color:#ff6644}
+.tf-true:hover{background:rgba(68,221,136,0.15);transform:translateY(-3px)}
+.tf-false:hover{background:rgba(255,68,34,0.12);transform:translateY(-3px)}
+.tf-btn.correct{background:rgba(68,221,136,0.2)!important;border-color:#44dd88!important}
+.tf-btn.wrong{background:rgba(255,68,34,0.15)!important;border-color:#ff4422!important;opacity:0.6}
+.intrus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.intrus-item{padding:14px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);cursor:pointer;text-align:center;font-family:'Crimson Text',serif;font-size:15px;color:rgba(220,210,190,0.9);transition:all 0.25s}
+.intrus-item:hover{border-color:rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);transform:scale(1.03)}
+.intrus-item.correct{border-color:#44dd88;background:rgba(68,221,136,0.12);color:#44dd88}
+.intrus-item.wrong{border-color:#ff4422;background:rgba(255,68,34,0.08);color:#ff6644}
+.drag-area{display:flex;gap:12px;flex-wrap:wrap}
+.drag-column{flex:1;min-width:140px;background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.1);border-radius:10px;padding:12px;min-height:180px;transition:all 0.2s}
+.drag-column.drag-over{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.06)}
+.col-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;color:rgba(255,255,255,0.5)}
+.drag-items{display:flex;flex-wrap:wrap;gap:6px}
+.drag-item{padding:8px 14px;border-radius:6px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);cursor:grab;font-family:'Crimson Text',serif;font-size:14px;color:rgba(220,210,190,0.9);transition:all 0.2s;user-select:none}
+.drag-item:hover{background:rgba(255,255,255,0.12);transform:scale(1.03)}
+.q-feedback{padding:12px 16px;border-radius:8px;font-family:'Crimson Text',serif;font-size:15px;line-height:1.6;display:none}
+.q-feedback.show{display:block;animation:feedIn 0.3s ease}
+@keyframes feedIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.q-feedback.correct-fb{background:rgba(68,221,136,0.1);border:1px solid rgba(68,221,136,0.3);color:#88ffbb}
+.q-feedback.wrong-fb{background:rgba(255,68,34,0.08);border:1px solid rgba(255,68,34,0.2);color:#ff9980}
+.next-btn{padding:14px 35px;border-radius:6px;cursor:pointer;font-family:'Cinzel',serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;transition:all 0.3s;display:none;background:rgba(201,145,61,0.1);border:1px solid rgba(201,145,61,0.3);color:#f0c97a}
+.next-btn.show{display:block;animation:feedIn 0.3s ease}
+.next-btn:hover{transform:translateY(-3px)}
+.validate-btn{padding:12px 28px;border-radius:6px;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;background:rgba(201,145,61,0.1);border:1px solid rgba(201,145,61,0.3);color:#f0c97a;margin-top:10px;transition:all 0.3s}
+.validate-btn:hover{transform:translateY(-2px)}
+#code-reveal{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:25px;opacity:0;pointer-events:none;transition:opacity 0.8s ease;padding:20px;background:radial-gradient(ellipse,rgba(5,3,15,0.97),rgba(2,1,8,0.99))}
+#code-reveal.active{opacity:1;pointer-events:all}
+.reveal-icon{font-size:70px;animation:revFloat 2s ease-in-out infinite}
+@keyframes revFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.reveal-title{font-family:'Cinzel Decorative',serif;font-size:clamp(18px,4vw,28px);text-align:center;color:#f0c97a;text-shadow:0 0 20px rgba(201,145,61,0.4)}
+.reveal-subtitle{font-family:'Crimson Text',serif;font-size:16px;font-style:italic;color:rgba(210,200,180,0.7);text-align:center;max-width:450px;line-height:1.7}
+.code-box{display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(0,0,0,0.6);border-radius:12px;padding:25px 40px;border:1px solid rgba(201,145,61,0.3)}
+.code-label{font-size:9px;letter-spacing:5px;text-transform:uppercase;opacity:0.5;color:white}
+.code-value{font-family:'Cinzel Decorative',serif;font-size:clamp(26px,5vw,44px);font-weight:900;letter-spacing:6px;color:#f0c97a;text-shadow:0 0 30px rgba(201,145,61,0.4);animation:codeGlow 2s ease-in-out infinite}
+@keyframes codeGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+.code-hint{font-family:'Crimson Text',serif;font-size:13px;font-style:italic;opacity:0.5;color:white;margin-top:5px}
+.reveal-btn{padding:16px 40px;border-radius:6px;border:none;cursor:pointer;font-family:'Cinzel',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;transition:all 0.3s;text-decoration:none;display:inline-block;background:rgba(201,145,61,0.1);border:1px solid rgba(201,145,61,0.3);color:#f0c97a}
+.reveal-btn:hover{transform:translateY(-3px)}
+.score-info{font-size:9px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div id="code-reveal">
+  <div class="reveal-icon">💎</div>
+  <div class="reveal-title">Code obtenu !</div>
+  <div class="reveal-subtitle">Impressionnant ! Note le code et retourne dans la Scène 2 pour l'entrer dans le portail !</div>
+  <div class="code-box">
+    <div class="code-label">🔐 Ton code secret</div>
+    <div class="code-value">SAVOIR-ETRE</div>
+    <div class="code-hint">Note ce code — entre-le dans le portail de cette scène !</div>
+  </div>
+  <a class="reveal-btn" href="https://indigo.elearningtouch.info/mod/h5pactivity/view.php?id=611">⚙️ Retour à la Scène 2 pour entrer le code →</a>
+</div>
+<div class="wrapper" id="main-wrapper">
+  <div style="text-align:center;width:100%">
+    <div class="act-badge">⚙️ Scène 2 · Fabrique Industrielle</div>
+    <div class="act-title">Les Plans de la Machine</div>
+    <div class="act-subtitle">Monsieur Beaumont a besoin d'un expert ! Prouve ta maîtrise du Savoir-Faire !</div>
+  </div>
+  <div style="width:100%">
+    <div class="progress-top">
+      <span id="q-counter">Question 1 / 4</span>
+      <span class="score-info" id="score-display">Score : 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div id="question-area" style="width:100%"></div>
+</div>
+<script>
+const QUESTIONS=[
+    {
+      type: "qcm",
+      typelabel: "QCM",
+      text: "\"Souder des pi\u00e8ces m\u00e9talliques avec pr\u00e9cision\" \u2014 quel type de comp\u00e9tence ?",
+      options: ["Savoir", "Savoir-\u00catre", "Savoir-Faire", "Dipl\u00f4me"],
+      correct: 2,
+      feedback_ok: "\u2705 Souder = comp\u00e9tence pratique = Savoir-Faire.",
+      feedback_ko: "\u274c Action concr\u00e8te = Savoir-Faire."
+    },
+    {
+      type: "intrus",
+      typelabel: "Trouver l'intrus",
+      text: "Trouve l'intrus parmi ces Savoir-Faire professionnels :",
+      items: ["Conduire une machine", "R\u00e9diger un contrat", "\u00catre ponctuel", "Utiliser un tour", "Lire des plans"],
+      correct: 2,
+      feedback_ok: "\u2705 \"\u00catre ponctuel\" est un Savoir-\u00catre, pas un Savoir-Faire.",
+      feedback_ko: "\u274c \"\u00catre ponctuel\" = qualit\u00e9 comportementale = Savoir-\u00catre."
+    },
+    {
+      type: "tf",
+      typelabel: "Vrai / Faux",
+      text: "Le Savoir-Faire s'acquiert uniquement \u00e0 l'\u00e9cole, jamais par l'exp\u00e9rience professionnelle.",
+      correct: false,
+      feedback_ok: "\u2705 Faux ! Le Savoir-Faire s'acquiert aussi par l'exp\u00e9rience.",
+      feedback_ko: "\u274c Si ! Il s'acquiert aussi par l'exp\u00e9rience et la pratique."
+    },
+    {
+      type: "drag",
+      typelabel: "Glisser-D\u00e9poser",
+      text: "Classe ces comp\u00e9tences dans la bonne cat\u00e9gorie :",
+      items: ["R\u00e9parer un moteur", "Faire preuve de rigueur", "Programmer une machine", "Travailler en \u00e9quipe"],
+      columns: ["\u2699\ufe0f Savoir-Faire", "\ud83d\udc99 Savoir-\u00catre"],
+      correct: [0, 1, 0, 1],
+      feedback_ok: "\u2705 R\u00e9parer et programmer = Savoir-Faire. Rigueur et \u00e9quipe = Savoir-\u00catre.",
+      feedback_ko: "\u274c Actions techniques = Savoir-Faire. Comportements = Savoir-\u00catre."
+    },
+  ];
+let cur=0,score=0,answered=false;
+const total=QUESTIONS.length;
+function upd(){document.getElementById('progress-fill').style.width=(cur/total*100)+'%';document.getElementById('q-counter').textContent='Question '+(cur+1)+' / '+total;document.getElementById('score-display').textContent='Score : '+score;}
+function render(){
+  answered=false;upd();
+  const q=QUESTIONS[cur];
+  const area=document.getElementById('question-area');
+  area.innerHTML='';
+  const card=document.createElement('div');
+  card.className='question-card';
+  let h='<span class="q-type-badge">'+q.typelabel+'</span><div class="q-text">'+q.text+'</div>';
+  if(q.type==='qcm'){h+='<div class="options">'+q.options.map((o,i)=>'<div class="option" id="opt-'+i+'" onclick="ansQCM('+i+')"><div class="opt-letter">'+String.fromCharCode(65+i)+'</div><span>'+o+'</span></div>').join('')+'</div>';}
+  else if(q.type==='tf'){h+='<div class="tf-buttons"><button class="tf-btn tf-true" onclick="ansTF(true)">✅ Vrai</button><button class="tf-btn tf-false" onclick="ansTF(false)">❌ Faux</button></div>';}
+  else if(q.type==='intrus'){h+='<div class="intrus-grid">'+q.items.map((it,i)=>'<div class="intrus-item" id="in-'+i+'" onclick="ansIntrus('+i+')">'+it+'</div>').join('')+'</div>';}
+  else if(q.type==='drag'){h+='<div class="drag-area"><div class="drag-column" id="col-src"><div class="col-title">📦 À classer</div><div class="drag-items" id="src-items">'+q.items.map((it,i)=>'<div class="drag-item" draggable="true" data-i="'+i+'" id="di-'+i+'">'+it+'</div>').join('')+'</div></div>'+q.columns.map((c,ci)=>'<div class="drag-column" id="col-'+ci+'" data-col="'+ci+'"><div class="col-title">'+c+'</div><div class="drag-items"></div></div>').join('')+'</div><button class="validate-btn" onclick="valDrag()">✅ Valider le classement</button>';}
+  h+='<div class="q-feedback" id="fb"></div><button class="next-btn" id="nb" onclick="nextQ()">'+(cur<total-1?'Question suivante →':'Voir le code secret 🔐')+'</button>';
+  card.innerHTML=h;
+  area.appendChild(card);
+  if(q.type==='drag')initDrag();
+}
+function ansQCM(i){if(answered)return;answered=true;const q=QUESTIONS[cur];document.querySelectorAll('.option').forEach((o,j)=>{o.classList.add('disabled');if(j===q.correct)o.classList.add('correct');else if(j===i&&i!==q.correct)o.classList.add('wrong');});showFb(i===q.correct,q);if(i===q.correct)score++;}
+function ansTF(v){if(answered)return;answered=true;const q=QUESTIONS[cur];const bs=document.querySelectorAll('.tf-btn');bs.forEach(b=>b.disabled=true);const ok=v===q.correct;if(v){bs[0].classList.add(ok?'correct':'wrong');if(!ok)bs[1].classList.add('correct');}else{bs[1].classList.add(ok?'correct':'wrong');if(!ok)bs[0].classList.add('correct');}showFb(ok,q);if(ok)score++;}
+function ansIntrus(i){if(answered)return;answered=true;const q=QUESTIONS[cur];document.querySelectorAll('.intrus-item').forEach((it,j)=>{it.style.pointerEvents='none';if(j===q.correct)it.classList.add('correct');else if(j===i&&i!==q.correct)it.classList.add('wrong');});const ok=i===q.correct;showFb(ok,q);if(ok)score++;}
+let dragEl=null;
+function initDrag(){document.querySelectorAll('.drag-item').forEach(el=>{el.addEventListener('dragstart',()=>{dragEl=el;});el.addEventListener('touchstart',()=>{dragEl=el;},{passive:true});el.addEventListener('touchend',e=>{const t=e.changedTouches[0];const target=document.elementFromPoint(t.clientX,t.clientY);const col=target&&target.closest('[data-col]');if(col){const ic=col.querySelector('.drag-items');if(ic&&dragEl)ic.appendChild(dragEl);}},{passive:true});});document.querySelectorAll('.drag-column').forEach(col=>{col.addEventListener('dragover',e=>{e.preventDefault();col.classList.add('drag-over');});col.addEventListener('dragleave',()=>col.classList.remove('drag-over'));col.addEventListener('drop',e=>{e.preventDefault();col.classList.remove('drag-over');const ic=col.querySelector('.drag-items');if(ic&&dragEl)ic.appendChild(dragEl);});});}
+function valDrag(){if(answered)return;const q=QUESTIONS[cur];let ok=true;q.items.forEach((item,i)=>{const el=document.getElementById('di-'+i);if(!el)return;const col=el.closest('[data-col]');const ci=col?parseInt(col.dataset.col):-1;const correct=ci===q.correct[i];el.style.borderColor=correct?'#44dd88':'#ff4422';el.style.color=correct?'#44dd88':'#ff4422';if(!correct)ok=false;});answered=true;showFb(ok,q);if(ok)score++;document.querySelector('.validate-btn').style.display='none';}
+function showFb(ok,q){const fb=document.getElementById('fb');fb.textContent=ok?q.feedback_ok:q.feedback_ko;fb.className='q-feedback show '+(ok?'correct-fb':'wrong-fb');document.getElementById('nb').classList.add('show');}
+function nextQ(){cur++;if(cur>=total)showReveal();else render();}
+function showReveal(){
+  try{const ctx=new(window.AudioContext||window.webkitAudioContext)();[523,659,784,1047,1319].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;g.gain.setValueAtTime(0.15,ctx.currentTime+i*0.15);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.15+0.4);o.start(ctx.currentTime+i*0.15);o.stop(ctx.currentTime+i*0.15+0.4);});}catch(e){}
+  document.getElementById('code-reveal').classList.add('active');
+}
+const st=document.getElementById('stars');
+for(let i=0;i<100;i++){const el=document.createElement('div');el.className='star';const sz=Math.random()<0.15?3:Math.random()<0.3?2:1;el.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;--d:'+(2+Math.random()*4)+'s;--dl:'+Math.random()*4+'s;--o:'+(0.2+Math.random()*0.6);st.appendChild(el);}
+render();
+</script>
+</body>
+</html>
