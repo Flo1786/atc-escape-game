@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scène 1 — Atelier du Magicien Aldric</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Georgia', serif;
+  background: linear-gradient(135deg, #1a0a05 0%, #2a1508 50%, #1a0a05 100%);
+  color: #e8d5b0;
+  min-height: 100vh;
+  padding: 16px;
+}
+h1 {
+  text-align: center; font-size: 14px; letter-spacing: 3px;
+  color: #D4A853; text-transform: uppercase; margin-bottom: 4px;
+  text-shadow: 0 0 15px rgba(212,168,83,0.6);
+}
+.sous-titre { text-align: center; font-size: 11px; color: #8B5E3C; margin-bottom: 14px; font-style: italic; }
+
+/* MUSIQUE */
+.musique-bar {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(212,168,83,0.08); border: 1px solid rgba(212,168,83,0.2);
+  border-radius: 6px; padding: 8px 12px; margin-bottom: 12px;
+}
+.music-icon { font-size: 16px; animation: bounce 0.8s ease-in-out infinite alternate; }
+@keyframes bounce { from{transform:scale(1)} to{transform:scale(1.2)} }
+.music-label { font-size: 10px; color: #a08040; flex: 1; }
+
+/* ONGLETS */
+.tabs { display: flex; gap: 3px; margin-bottom: 12px; flex-wrap: wrap; }
+.tab {
+  flex: 1; min-width: 70px; padding: 7px 4px; text-align: center;
+  background: rgba(212,168,83,0.08); border: 1px solid rgba(212,168,83,0.25);
+  border-radius: 6px 6px 0 0; cursor: pointer; font-size: 10px; color: #a08040;
+  transition: all 0.2s; letter-spacing: 1px;
+}
+.tab.active { background: rgba(212,168,83,0.2); border-color: #D4A853; color: #D4A853; font-weight: bold; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* PARCHEMIN */
+.parchemin-wrap { position: relative; }
+.rouleau { height: 20px; background: linear-gradient(180deg,#8B5E3C,#6B3F1C,#8B5E3C); border-radius: 10px; position: relative; z-index: 2; }
+.rouleau::before,.rouleau::after { content:''; position:absolute; top:50%; transform:translateY(-50%); width:18px; height:18px; background:radial-gradient(circle,#D4A853,#8B5E3C); border-radius:50%; box-shadow:0 0 6px rgba(212,168,83,0.5); }
+.rouleau::before { left:6px; } .rouleau::after { right:6px; }
+.parchemin-corps {
+  background: linear-gradient(160deg,#F5E6C8,#EDD9A3,#F0DFA8);
+  padding: 18px 20px; margin: -2px 10px;
+  border-left: 3px solid rgba(139,94,60,0.3); border-right: 3px solid rgba(139,94,60,0.3);
+  animation: derouler 1.2s ease-out forwards;
+}
+@keyframes derouler { 0%{max-height:0;opacity:0;padding:0 20px} 100%{max-height:800px;opacity:1;padding:18px 20px} }
+.p-titre { text-align:center; font-size:16px; color:#4A2800; font-weight:bold; margin-bottom:4px; }
+.p-sous { text-align:center; font-size:10px; color:#8B5E3C; margin-bottom:12px; font-style:italic; letter-spacing:2px; }
+.p-sep { text-align:center; color:#8B5E3C; font-size:16px; margin-bottom:12px; letter-spacing:6px; }
+
+/* FLASHCARDS PARCHEMIN */
+.fc-parchemin {
+  background: rgba(139,94,60,0.1); border: 1px solid rgba(139,94,60,0.3);
+  border-radius: 8px; padding: 14px; margin-bottom: 10px; cursor: pointer;
+  transition: all 0.3s;
+}
+.fc-parchemin:hover { background: rgba(139,94,60,0.18); }
+.fc-question { font-size: 12px; color: #4A2800; font-weight: bold; margin-bottom: 6px; }
+.fc-reponse { font-size: 12px; color: #5C3A1E; line-height: 1.6; display: none; font-style: italic; }
+.fc-reponse.visible { display: block; }
+.fc-hint { font-size: 10px; color: #8B5E3C; margin-top: 6px; }
+.fc-exemple { font-size: 11px; color: #6B4A1E; margin-top: 6px; background: rgba(212,168,83,0.1); padding: 6px 8px; border-radius: 4px; }
+
+/* QCM */
+.qcm-box {
+  background: rgba(74,40,0,0.15); border: 2px solid rgba(139,94,60,0.4);
+  border-radius: 10px; padding: 16px;
+}
+.qcm-titre { font-size: 13px; color: #4A2800; font-weight: bold; margin-bottom: 12px; line-height: 1.5; }
+.qcm-perso { font-size: 11px; color: #8B5E3C; font-style: italic; margin-bottom: 10px; }
+.choix {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(212,168,83,0.06); border: 1px solid rgba(212,168,83,0.2);
+  border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+.choix:hover { background: rgba(212,168,83,0.15); border-color: rgba(212,168,83,0.5); }
+.choix.correct { background: rgba(80,200,120,0.15); border-color: #50C878; }
+.choix.incorrect { background: rgba(255,68,68,0.12); border-color: #ff6666; }
+.choix-lettre {
+  width: 24px; height: 24px; border-radius: 50%; background: rgba(212,168,83,0.2);
+  border: 1px solid #D4A853; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #D4A853; font-weight: bold; flex-shrink: 0;
+}
+.choix-texte { font-size: 12px; color: #5C3A1E; line-height: 1.4; flex: 1; }
+.feedback {
+  padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 12px; line-height: 1.5;
+  display: none;
+}
+.feedback.correct { background: rgba(80,200,120,0.15); border: 1px solid #50C878; color: #2a6a3a; display: block; }
+.feedback.incorrect { background: rgba(255,68,68,0.12); border: 1px solid #ff6666; color: #6a2a2a; display: block; }
+.feedback-icon { font-size: 20px; margin-right: 8px; }
+
+/* VRAI/FAUX */
+.vf-box { margin-bottom: 12px; }
+.vf-question {
+  background: rgba(139,94,60,0.1); border: 1px solid rgba(139,94,60,0.3);
+  border-radius: 8px; padding: 12px; margin-bottom: 6px;
+}
+.vf-texte { font-size: 12px; color: #4A2800; margin-bottom: 10px; line-height: 1.5; font-style: italic; }
+.vf-btns { display: flex; gap: 8px; }
+.vf-btn {
+  flex: 1; padding: 8px; border: 1px solid; border-radius: 6px;
+  cursor: pointer; font-size: 12px; font-weight: bold; transition: all 0.2s;
+  background: transparent; font-family: 'Georgia', serif;
+}
+.vf-vrai { border-color: #50C878; color: #50C878; }
+.vf-faux { border-color: #ff6666; color: #ff6666; }
+.vf-vrai:hover { background: rgba(80,200,120,0.15); }
+.vf-faux:hover { background: rgba(255,68,68,0.12); }
+.vf-feedback { font-size: 11px; padding: 8px; border-radius: 6px; margin-top: 6px; display: none; line-height: 1.5; }
+.vf-feedback.ok { background: rgba(80,200,120,0.12); border: 1px solid #50C878; color: #2a5a3a; display: block; }
+.vf-feedback.ko { background: rgba(255,68,68,0.1); border: 1px solid #ff6666; color: #5a2a2a; display: block; }
+
+/* PORTE */
+.porte {
+  background: linear-gradient(135deg,#1a0a3a,#2a1a5a);
+  border: 2px solid #9B8FFF; border-radius: 10px; padding: 16px;
+  text-align: center; animation: porte-pulse 3s ease-in-out infinite;
+}
+@keyframes porte-pulse { 0%,100%{box-shadow:0 0 20px rgba(123,104,238,0.3)} 50%{box-shadow:0 0 45px rgba(123,104,238,0.6)} }
+.porte-icon { font-size: 36px; margin-bottom: 8px; display: block; animation: spin-slow 8s linear infinite; }
+@keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.porte-titre { font-size: 13px; color: #9B8FFF; font-weight: bold; letter-spacing: 2px; margin-bottom: 6px; }
+.porte-texte { font-size: 11px; color: #8080b0; line-height: 1.5; margin-bottom: 12px; }
+.porte-btn {
+  display: inline-block; padding: 10px 22px;
+  background: linear-gradient(135deg,#4B3FBE,#7B68EE);
+  border: none; border-radius: 6px; color: white; font-size: 12px;
+  font-weight: bold; cursor: pointer; letter-spacing: 2px;
+  transition: all 0.3s; box-shadow: 0 4px 15px rgba(123,104,238,0.4);
+  font-family: 'Georgia', serif;
+}
+.porte-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(123,104,238,0.6); }
+.porte-locked { font-size: 11px; color: #ff6666; margin-top: 8px; }
+
+/* ARTEFACT */
+.artefact-obtenu {
+  background: rgba(212,168,83,0.12); border: 2px solid #D4A853;
+  border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 12px;
+  display: none;
+}
+.artefact-obtenu.visible { display: block; animation: artefact-appear 0.5s ease-out; }
+@keyframes artefact-appear { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+.artefact-icon { font-size: 40px; margin-bottom: 6px; display: block; }
+.artefact-titre { font-size: 14px; color: #D4A853; font-weight: bold; }
+.artefact-texte { font-size: 11px; color: #a08040; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<h1>&#128218; Atelier du Magicien Aldric</h1>
+<div class="sous-titre">AN 1350 — Quête du Parchemin du Savoir</div>
+
+<!-- MUSIQUE -->
+<div class="musique-bar">
+  <span class="music-icon">&#127925;</span>
+  <span class="music-label">Ambiance médiévale mystique — Luth et flûte enchantée</span>
+  <audio controls style="height:26px;width:150px;">
+    <source src="" type="audio/mpeg">
+    <!-- Uploadez votre fichier audio médiéval dans Moodle et collez l'URL ici -->
+  </audio>
+</div>
+
+<!-- ONGLETS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('parchemin')">&#128220; PARCHEMIN</div>
+  <div class="tab" onclick="showTab('qcm')">&#10067; ÉNIGME</div>
+  <div class="tab" onclick="showTab('vraifaux')">&#9989; VRAI/FAUX</div>
+  <div class="tab" onclick="showTab('porte')">&#128682; PORTAIL</div>
+</div>
+
+<!-- ARTEFACT OBTENU (apparaît après succès) -->
+<div class="artefact-obtenu" id="artefact1">
+  <span class="artefact-icon">&#128218;</span>
+  <div class="artefact-titre">&#127775; PARCHEMIN DU SAVOIR OBTENU !</div>
+  <div class="artefact-texte">Vous avez prouvé votre maîtrise du concept de SAVOIR. Maître Aldric vous remet le parchemin.</div>
+</div>
+
+<!-- PANNEAU PARCHEMIN — FLASHCARDS -->
+<div class="panel active" id="panel-parchemin">
+  <div class="parchemin-wrap">
+    <div class="rouleau"></div>
+    <div class="parchemin-corps">
+      <div class="p-titre">Le Parchemin du Savoir</div>
+      <div class="p-sous">Grimoire de Maître Aldric — AN 1350</div>
+      <div class="p-sep">&#10022; &#10022; &#10022;</div>
+
+      <div class="fc-parchemin" onclick="toggleFC(this)">
+        <div class="fc-question">&#128218; Qu'est-ce que le SAVOIR ?</div>
+        <div class="fc-reponse">Le SAVOIR désigne l'ensemble des connaissances théoriques et factuelles acquises par l'étude, la formation ou l'expérience personnelle.</div>
+        <div class="fc-exemple">Exemples : connaître les règles de grammaire, maîtriser l'histoire de son secteur, comprendre les lois du marché du travail.</div>
+        <div class="fc-hint">&#128432; Cliquez pour révéler la définition</div>
+      </div>
+
+      <div class="fc-parchemin" onclick="toggleFC(this)">
+        <div class="fc-question">&#127891; Comment acquiert-on un SAVOIR ?</div>
+        <div class="fc-reponse">Le savoir s'acquiert par l'étude (diplômes, formations), l'expérience (travail, vie quotidienne), la lecture, et l'autoformation tout au long de la vie.</div>
+        <div class="fc-exemple">Bon à savoir : un savoir acquis par l'expérience vaut autant qu'un savoir académique !</div>
+        <div class="fc-hint">&#128432; Cliquez pour révéler la réponse</div>
+      </div>
+
+      <div class="fc-parchemin" onclick="toggleFC(this)">
+        <div class="fc-question">&#128188; Le SAVOIR en entretien d'embauche</div>
+        <div class="fc-reponse">Les recruteurs valorisent vos savoirs : diplômes, certifications, formations continues. Ils prouvent votre niveau de connaissance dans un domaine.</div>
+        <div class="fc-exemple">Astuce CV : listez vos formations, certifications et domaines de connaissance dans la rubrique "Formation" et "Compétences".</div>
+        <div class="fc-hint">&#128432; Cliquez pour le conseil emploi</div>
+      </div>
+    </div>
+    <div class="rouleau"></div>
+  </div>
+</div>
+
+<!-- PANNEAU QCM -->
+<div class="panel" id="panel-qcm">
+  <div class="qcm-box">
+    <div class="qcm-perso">&#129497; Maître Aldric vous dit : "Jeune agent, prouvez votre sagesse ! Répondez à mon énigme pour obtenir le Parchemin du Savoir."</div>
+    <div class="qcm-titre">Parmi ces éléments, lequel est un SAVOIR ?</div>
+
+    <div class="choix" onclick="repondreQCM(this, false, 'qcm1')">
+      <div class="choix-lettre">A</div>
+      <div class="choix-texte">Savoir rédiger un CV professionnel</div>
+    </div>
+    <div class="choix" onclick="repondreQCM(this, true, 'qcm1')">
+      <div class="choix-lettre">B</div>
+      <div class="choix-texte">Connaître les règles du droit du travail</div>
+    </div>
+    <div class="choix" onclick="repondreQCM(this, false, 'qcm1')">
+      <div class="choix-lettre">C</div>
+      <div class="choix-texte">Être ponctuel et fiable</div>
+    </div>
+    <div class="choix" onclick="repondreQCM(this, false, 'qcm1')">
+      <div class="choix-lettre">D</div>
+      <div class="choix-texte">Savoir travailler en équipe</div>
+    </div>
+
+    <div class="feedback" id="fb-correct-qcm1">
+      <span class="feedback-icon">&#127775;</span>
+      <strong>Excellent !</strong> Connaître les règles du droit du travail est bien un <strong>SAVOIR</strong> : une connaissance théorique acquise par l'étude.<br><br>
+      &#10060; A = Savoir-Faire | &#10060; C = Savoir-Être | &#10060; D = Savoir-Être<br><br>
+      &#128218; <strong>Le Parchemin du Savoir vous appartient !</strong>
+    </div>
+    <div class="feedback" id="fb-incorrect-qcm1">
+      <span class="feedback-icon">&#10060;</span>
+      <strong>Pas tout à fait...</strong> Un SAVOIR est une <strong>connaissance théorique ou factuelle</strong>. Ce n'est pas une action (savoir-faire) ni une attitude (savoir-être). Relisez le parchemin et réessayez !
+    </div>
+  </div>
+</div>
+
+<!-- PANNEAU VRAI/FAUX -->
+<div class="panel" id="panel-vraifaux">
+  <div class="vf-box">
+
+    <div class="vf-question">
+      <div class="vf-texte">&#10067; "Le savoir s'acquiert uniquement à l'école ou en formation."</div>
+      <div class="vf-btns">
+        <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf1',false)">&#9989; VRAI</button>
+        <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf1',true)">&#10060; FAUX</button>
+      </div>
+      <div class="vf-feedback" id="vf1">
+        &#10004; <strong>FAUX !</strong> Le savoir s'acquiert aussi par l'expérience professionnelle, la vie quotidienne, la lecture, l'autoformation... Votre vécu compte autant que vos diplômes !
+      </div>
+    </div>
+
+    <div class="vf-question">
+      <div class="vf-texte">&#10067; "Connaître l'histoire de son secteur professionnel est un savoir."</div>
+      <div class="vf-btns">
+        <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf2',true)">&#9989; VRAI</button>
+        <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf2',false)">&#10060; FAUX</button>
+      </div>
+      <div class="vf-feedback" id="vf2">
+        &#10004; <strong>VRAI !</strong> C'est une connaissance factuelle sur un domaine spécifique — c'est bien un savoir. Les recruteurs apprécient les candidats qui connaissent leur secteur !
+      </div>
+    </div>
+
+    <div class="vf-question">
+      <div class="vf-texte">&#10067; "Le savoir est toujours directement visible et mesurable par un recruteur."</div>
+      <div class="vf-btns">
+        <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf3',false)">&#9989; VRAI</button>
+        <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf3',true)">&#10060; FAUX</button>
+      </div>
+      <div class="vf-feedback" id="vf3">
+        &#10004; <strong>FAUX !</strong> Le savoir doit être mis en pratique ou évalué (test, entretien, diplôme) pour être visible. C'est pourquoi il faut savoir valoriser ses connaissances à l'oral et à l'écrit.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PANNEAU PORTAIL -->
+<div class="panel" id="panel-porte">
+  <div class="porte">
+    <span class="porte-icon">&#9881;</span>
+    <div class="porte-titre">PORTAIL — AN 1880</div>
+    <div class="porte-texte">Le portail vers la Fabrique Industrielle s'ouvre.<br>Préparez-vous à voyager en l'AN 1880.<br><br>Votre prochaine mission : récupérer l'<strong>Engrenage du Savoir-Faire</strong>.</div>
+    <!-- Dans H5P : créez un hotspot "Go to Scene" vers la Scène 2 -->
+    <button class="porte-btn" onclick="alert('Dans H5P Virtual Tour : utilisez un hotspot Go to Scene pointant vers votre Scène 2 (Fabrique Industrielle)')">
+      &#9658; VOYAGER EN 1880
+    </button>
+    <div class="porte-locked">&#128274; Complétez l'énigme et le Vrai/Faux pour débloquer le portail</div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleFC(el) {
+  const rep = el.querySelector('.fc-reponse');
+  const hint = el.querySelector('.fc-hint');
+  rep.classList.toggle('visible');
+  hint.textContent = rep.classList.contains('visible') ? '&#128432; Cliquez pour masquer' : '&#128432; Cliquez pour révéler';
+}
+
+let qcm1Done = false;
+function repondreQCM(el, correct, id) {
+  if (qcm1Done) return;
+  qcm1Done = true;
+  document.querySelectorAll('.choix').forEach(c => c.style.pointerEvents = 'none');
+  if (correct) {
+    el.classList.add('correct');
+    document.getElementById('fb-correct-' + id).classList.add('correct');
+    document.getElementById('artefact1').classList.add('visible');
+  } else {
+    el.classList.add('incorrect');
+    document.getElementById('fb-incorrect-' + id).classList.add('incorrect');
+    setTimeout(() => { qcm1Done = false; document.querySelectorAll('.choix').forEach(c => { c.style.pointerEvents=''; c.classList.remove('correct','incorrect'); }); document.getElementById('fb-incorrect-' + id).classList.remove('incorrect'); }, 2500);
+  }
+}
+
+function repondreVF(btn, id, correct) {
+  const fb = document.getElementById(id);
+  const parent = btn.closest('.vf-question');
+  parent.querySelectorAll('.vf-btn').forEach(b => b.disabled = true);
+  if (correct) {
+    fb.classList.add('ok');
+    btn.style.background = 'rgba(80,200,120,0.2)';
+  } else {
+    fb.classList.add('ko');
+    btn.style.background = 'rgba(255,68,68,0.15)';
+    setTimeout(() => {
+      fb.classList.remove('ko');
+      parent.querySelectorAll('.vf-btn').forEach(b => { b.disabled = false; b.style.background = ''; });
+    }, 2500);
+  }
+}
+</script>
+</body>
+</html>

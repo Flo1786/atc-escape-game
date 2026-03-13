@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scène 4 — Salle du Grand Livre</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Arial,sans-serif; background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2a 50%,#0a0a0a 100%); color:#e8e0d0; min-height:100vh; padding:16px; }
+h1 { text-align:center; font-size:14px; letter-spacing:3px; color:#D4A853; text-transform:uppercase; margin-bottom:4px; text-shadow:0 0 15px rgba(212,168,83,0.6); }
+.sous-titre { text-align:center; font-size:11px; color:#8B5E3C; margin-bottom:14px; font-style:italic; }
+.musique-bar { display:flex; align-items:center; gap:8px; background:rgba(212,168,83,0.08); border:1px solid rgba(212,168,83,0.2); border-radius:6px; padding:8px 12px; margin-bottom:12px; }
+.music-icon { font-size:16px; animation:bounce 0.8s ease-in-out infinite alternate; }
+@keyframes bounce { from{transform:scale(1)} to{transform:scale(1.2)} }
+.music-label { font-size:10px; color:#a08040; flex:1; }
+.tabs { display:flex; gap:3px; margin-bottom:12px; flex-wrap:wrap; }
+.tab { flex:1; min-width:60px; padding:7px 4px; text-align:center; background:rgba(212,168,83,0.08); border:1px solid rgba(212,168,83,0.25); border-radius:6px 6px 0 0; cursor:pointer; font-size:10px; color:#a08040; transition:all 0.2s; letter-spacing:1px; }
+.tab.active { background:rgba(212,168,83,0.2); border-color:#D4A853; color:#D4A853; font-weight:bold; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* LIVRE ANIMÉ */
+.livre-zone { display:flex; justify-content:center; margin-bottom:14px; }
+.livre { position:relative; width:120px; height:90px; }
+.livre-couv { width:120px; height:90px; background:linear-gradient(135deg,#4A2800,#8B5E3C); border-radius:4px 12px 12px 4px; box-shadow:4px 4px 15px rgba(0,0,0,0.5); animation:livre-pulse 3s ease-in-out infinite; display:flex; align-items:center; justify-content:center; }
+@keyframes livre-pulse { 0%,100%{box-shadow:4px 4px 15px rgba(0,0,0,0.5),0 0 20px rgba(212,168,83,0.2)} 50%{box-shadow:4px 4px 20px rgba(0,0,0,0.7),0 0 40px rgba(212,168,83,0.5)} }
+.livre-titre { color:#D4A853; font-size:10px; font-weight:bold; text-align:center; letter-spacing:1px; line-height:1.4; }
+.livre-dos { position:absolute; left:0; top:0; width:14px; height:90px; background:linear-gradient(180deg,#6B3F1C,#4A2800,#6B3F1C); border-radius:4px 0 0 4px; }
+.page { position:absolute; right:-4px; top:4px; width:100px; height:82px; background:#F5E6C8; border-radius:0 8px 8px 0; animation:tourner-page 4s ease-in-out infinite; transform-origin:left center; }
+@keyframes tourner-page { 0%,40%{transform:rotateY(0deg)} 50%,90%{transform:rotateY(-15deg)} 100%{transform:rotateY(0deg)} }
+.particule-or { position:absolute; width:5px; height:5px; background:#D4A853; border-radius:50%; animation:monter 3s ease-in-out infinite; }
+.po1{bottom:0;left:30%;animation-delay:0s} .po2{bottom:0;left:50%;animation-delay:1s} .po3{bottom:0;left:70%;animation-delay:2s}
+@keyframes monter { 0%{transform:translateY(0);opacity:1} 100%{transform:translateY(-80px);opacity:0} }
+
+/* FLASHCARDS */
+.fc-box { background:rgba(212,168,83,0.08); border:1px solid rgba(212,168,83,0.25); border-radius:8px; padding:14px; margin-bottom:10px; cursor:pointer; transition:all 0.3s; }
+.fc-box:hover { background:rgba(212,168,83,0.15); }
+.fc-q { font-size:12px; color:#D4A853; font-weight:bold; margin-bottom:6px; }
+.fc-r { font-size:12px; color:#c4a870; line-height:1.6; display:none; }
+.fc-r.visible { display:block; }
+.fc-ex { font-size:11px; color:#8B5E3C; margin-top:6px; background:rgba(212,168,83,0.1); padding:6px 8px; border-radius:4px; }
+.fc-hint { font-size:10px; color:#6B4A2A; margin-top:6px; }
+
+/* QCM FINAL */
+.qcm-box { background:rgba(212,168,83,0.08); border:2px solid rgba(212,168,83,0.35); border-radius:10px; padding:16px; margin-bottom:12px; }
+.qcm-titre { font-size:13px; color:#D4A853; font-weight:bold; margin-bottom:12px; line-height:1.5; }
+.qcm-perso { font-size:11px; color:#8B5E3C; font-style:italic; margin-bottom:10px; }
+.choix { display:flex; align-items:flex-start; gap:10px; background:rgba(212,168,83,0.06); border:1px solid rgba(212,168,83,0.2); border-radius:6px; padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+.choix:hover { background:rgba(212,168,83,0.15); border-color:rgba(212,168,83,0.5); }
+.choix.correct { background:rgba(80,200,120,0.12); border-color:#50C878; }
+.choix.incorrect { background:rgba(255,68,68,0.1); border-color:#ff6666; }
+.choix-lettre { width:24px; height:24px; border-radius:50%; background:rgba(212,168,83,0.2); border:1px solid #D4A853; display:flex; align-items:center; justify-content:center; font-size:11px; color:#D4A853; font-weight:bold; flex-shrink:0; }
+.choix-texte { font-size:12px; color:#c4a870; line-height:1.4; flex:1; }
+.feedback { padding:12px; border-radius:8px; margin-top:10px; font-size:12px; line-height:1.5; display:none; }
+.feedback.correct { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a6a3a; display:block; }
+.feedback.incorrect { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#6a2a2a; display:block; }
+
+/* VRAI/FAUX */
+.vf-question { background:rgba(212,168,83,0.08); border:1px solid rgba(212,168,83,0.25); border-radius:8px; padding:12px; margin-bottom:8px; }
+.vf-texte { font-size:12px; color:#D4A853; margin-bottom:10px; line-height:1.5; font-style:italic; }
+.vf-btns { display:flex; gap:8px; }
+.vf-btn { flex:1; padding:8px; border:1px solid; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; transition:all 0.2s; background:transparent; }
+.vf-vrai { border-color:#50C878; color:#50C878; }
+.vf-faux { border-color:#ff6666; color:#ff6666; }
+.vf-vrai:hover { background:rgba(80,200,120,0.15); }
+.vf-faux:hover { background:rgba(255,68,68,0.12); }
+.vf-feedback { font-size:11px; padding:8px; border-radius:6px; margin-top:6px; display:none; line-height:1.5; }
+.vf-feedback.ok { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a5a3a; display:block; }
+.vf-feedback.ko { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#5a2a2a; display:block; }
+
+/* VICTOIRE */
+.victoire { background:linear-gradient(135deg,#1a1a0a,#2a2a1a); border:3px solid #D4A853; border-radius:12px; padding:20px; text-align:center; position:relative; overflow:hidden; }
+.victoire::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at center,rgba(212,168,83,0.08),transparent); }
+.trophee { font-size:50px; display:block; margin-bottom:10px; animation:trophee-pulse 2s ease-in-out infinite; }
+@keyframes trophee-pulse { 0%,100%{transform:scale(1);filter:drop-shadow(0 0 10px rgba(212,168,83,0.4))} 50%{transform:scale(1.1);filter:drop-shadow(0 0 25px rgba(212,168,83,0.8))} }
+.victoire-titre { font-size:16px; color:#D4A853; font-weight:bold; letter-spacing:3px; margin-bottom:8px; }
+.victoire-texte { font-size:12px; color:#a08040; line-height:1.7; margin-bottom:14px; }
+.artefacts-recap { display:flex; justify-content:center; gap:16px; margin-bottom:14px; }
+.art { text-align:center; }
+.art-icon { font-size:24px; display:block; }
+.art-nom { font-size:9px; color:#8B5E3C; margin-top:2px; }
+.score-final { background:rgba(212,168,83,0.12); border:1px solid rgba(212,168,83,0.3); border-radius:8px; padding:12px; margin-bottom:14px; }
+.score-titre { font-size:11px; color:#D4A853; font-weight:bold; margin-bottom:8px; }
+.score-ligne { display:flex; justify-content:space-between; font-size:11px; color:#a08040; margin-bottom:4px; }
+.score-valeur { color:#D4A853; font-weight:bold; }
+.confetti { position:absolute; width:8px; height:8px; border-radius:2px; animation:tomber 3s ease-in infinite; }
+@keyframes tomber { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(400px) rotate(720deg);opacity:0} }
+
+/* BILAN */
+.bilan-box { background:rgba(212,168,83,0.08); border:2px solid rgba(212,168,83,0.3); border-radius:10px; padding:16px; }
+.bilan-titre { font-size:13px; color:#D4A853; font-weight:bold; margin-bottom:12px; text-align:center; }
+.bilan-carte { background:rgba(212,168,83,0.06); border:1px solid rgba(212,168,83,0.2); border-radius:8px; padding:12px; margin-bottom:10px; }
+.bilan-type { font-size:12px; color:#D4A853; font-weight:bold; margin-bottom:4px; }
+.bilan-def { font-size:11px; color:#a08040; line-height:1.5; margin-bottom:6px; }
+.bilan-ex { font-size:11px; color:#8B5E3C; font-style:italic; }
+.bilan-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold; margin-bottom:6px; }
+.badge-savoir { background:rgba(100,180,255,0.15); border:1px solid #64b4ff; color:#64b4ff; }
+.badge-sf { background:rgba(184,115,51,0.15); border:1px solid #B87333; color:#B87333; }
+.badge-se { background:rgba(123,104,238,0.15); border:1px solid #9B8FFF; color:#9B8FFF; }
+.badge-trans { background:rgba(80,200,120,0.15); border:1px solid #50C878; color:#50C878; }
+</style>
+</head>
+<body>
+<h1>&#128218; Salle du Grand Livre</h1>
+<div class="sous-titre">Présent — Mission Finale : Les Compétences Transférables</div>
+
+<div class="musique-bar">
+  <span class="music-icon">&#127925;</span>
+  <span class="music-label">Musique de victoire — Orchestre épique et majestueux</span>
+  <audio controls style="height:26px;width:150px;"><source src="" type="audio/mpeg"></audio>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('livre')">&#128218; GRAND LIVRE</div>
+  <div class="tab" onclick="showTab('qcm')">&#10067; ÉNIGME FINALE</div>
+  <div class="tab" onclick="showTab('vraifaux')">&#9989; VRAI/FAUX</div>
+  <div class="tab" onclick="showTab('bilan')">&#128203; BILAN</div>
+  <div class="tab" onclick="showTab('victoire')">&#127942; VICTOIRE</div>
+</div>
+
+<!-- LIVRE + FLASHCARDS TRANSFÉRABLES -->
+<div class="panel active" id="panel-livre">
+  <div class="livre-zone">
+    <div class="livre">
+      <div class="livre-dos"></div>
+      <div class="livre-couv"><div class="livre-titre">GRAND<br>LIVRE DES<br>COMPETENCES</div></div>
+      <div class="page"></div>
+      <div class="particule-or po1"></div>
+      <div class="particule-or po2"></div>
+      <div class="particule-or po3"></div>
+    </div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128260; Qu'est-ce qu'une compétence transférable ?</div>
+    <div class="fc-r">Une compétence transférable est une compétence (savoir, savoir-faire ou savoir-être) qui peut être utilisée dans différents métiers, secteurs ou contextes professionnels. Elle ne dépend pas d'un seul emploi ou d'une seule entreprise.</div>
+    <div class="fc-ex">Exemples : savoir gérer son temps, communiquer efficacement, résoudre des problèmes, travailler en équipe, s'adapter au changement.</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128260; Pourquoi les compétences transférables sont-elles précieuses ?</div>
+    <div class="fc-r">Elles permettent de changer de métier ou de secteur sans repartir de zéro. Lors d'une reconversion, d'une recherche d'emploi ou d'une mobilité professionnelle, elles constituent votre capital de compétences portable.</div>
+    <div class="fc-ex">Astuce : lors d'un entretien, valorisez vos compétences transférables en montrant comment elles s'appliquent au nouveau poste visé.</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128188; Les 5 grandes familles de compétences transférables</div>
+    <div class="fc-r">
+      <strong>1. Communication :</strong> écrire, parler, écouter, convaincre.<br>
+      <strong>2. Organisation :</strong> planifier, prioriser, gérer le temps.<br>
+      <strong>3. Relation :</strong> travailler en équipe, négocier, manager.<br>
+      <strong>4. Analyse :</strong> résoudre des problèmes, analyser des données.<br>
+      <strong>5. Adaptation :</strong> apprendre vite, gérer le stress, innover.
+    </div>
+    <div class="fc-ex">Ces 5 familles couvrent la quasi-totalité des compétences valorisées dans tous les secteurs professionnels.</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+</div>
+
+<!-- QCM FINAL -->
+<div class="panel" id="panel-qcm">
+  <div class="qcm-box">
+    <div class="qcm-perso">&#128218; Le Grand Livre vous parle : "Agent, vous avez traversé les âges. Une dernière épreuve pour sceller votre mission !"</div>
+    <div class="qcm-titre">Parmi ces compétences, laquelle est la plus facilement transférable d'un emploi à un autre ?</div>
+    <div class="choix" onclick="repondreQCM(this,false,'q4')"><div class="choix-lettre">A</div><div class="choix-texte">Maîtriser le logiciel de caisse d'un supermarché spécifique</div></div>
+    <div class="choix" onclick="repondreQCM(this,true,'q4')"><div class="choix-lettre">B</div><div class="choix-texte">Savoir gérer les conflits au sein d'une équipe</div></div>
+    <div class="choix" onclick="repondreQCM(this,false,'q4')"><div class="choix-lettre">C</div><div class="choix-texte">Connaître les procédures internes d'une entreprise</div></div>
+    <div class="choix" onclick="repondreQCM(this,false,'q4')"><div class="choix-lettre">D</div><div class="choix-texte">Savoir utiliser une machine-outil spécifique à l'usine</div></div>
+    <div class="feedback" id="fb-correct-q4">&#127775; <strong>Mission accomplie !</strong> Gérer les conflits est une compétence transférable : elle s'applique dans tous les métiers, tous les secteurs, toutes les équipes.<br><br>&#10060; A, C, D = compétences très spécifiques à un contexte particulier.<br><br>&#128218; <strong>Le Grand Livre s'illumine ! Vous avez réussi votre mission !</strong></div>
+    <div class="feedback" id="fb-incorrect-q4">&#10060; <strong>Pas encore...</strong> Une compétence transférable fonctionne dans <strong>n'importe quel</strong> emploi. Laquelle des 4 options peut s'appliquer partout ?</div>
+  </div>
+
+  <div class="qcm-box">
+    <div class="qcm-perso">&#128218; Deuxième épreuve du Grand Livre :</div>
+    <div class="qcm-titre">Un candidat change de métier : de serveur en restauration à conseiller clientèle en banque. Quelle compétence transférable peut-il valoriser ?</div>
+    <div class="choix" onclick="repondreQCM(this,false,'q4b')"><div class="choix-lettre">A</div><div class="choix-texte">La connaissance des vins et des menus</div></div>
+    <div class="choix" onclick="repondreQCM(this,false,'q4b')"><div class="choix-lettre">B</div><div class="choix-texte">La maîtrise du logiciel de caisse du restaurant</div></div>
+    <div class="choix" onclick="repondreQCM(this,true,'q4b')"><div class="choix-lettre">C</div><div class="choix-texte">Le sens du service client et la gestion de situations stressantes</div></div>
+    <div class="choix" onclick="repondreQCM(this,false,'q4b')"><div class="choix-lettre">D</div><div class="choix-texte">La connaissance des fournisseurs du restaurant</div></div>
+    <div class="feedback" id="fb-correct-q4b">&#127775; <strong>Excellent raisonnement !</strong> Le sens du service client et la gestion du stress sont des compétences transférables qui s'appliquent parfaitement en banque comme en restauration.</div>
+    <div class="feedback" id="fb-incorrect-q4b">&#10060; <strong>Réfléchissez...</strong> Quelle compétence acquise en restauration peut être utile dans n'importe quel métier en contact avec le public ?</div>
+  </div>
+</div>
+
+<!-- VRAI/FAUX -->
+<div class="panel" id="panel-vraifaux">
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Une compétence transférable ne peut être que du savoir-être."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf4a',false)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf4a',true)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf4a">&#10004; <strong>FAUX !</strong> Une compétence transférable peut être un savoir (ex: maîtriser une langue étrangère), un savoir-faire (ex: rédiger des rapports) ou un savoir-être (ex: l'adaptabilité). C'est la transférabilité qui compte, pas le type !</div>
+  </div>
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Lors d'une reconversion professionnelle, les compétences transférables sont un atout majeur."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf4b',true)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf4b',false)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf4b">&#10004; <strong>VRAI !</strong> Elles permettent de montrer à un recruteur d'un nouveau secteur que vous avez déjà des compétences utiles, même sans expérience directe dans ce domaine.</div>
+  </div>
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Savoir utiliser Excel est toujours une compétence transférable."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf4c',true)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf4c',false)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf4c">&#10004; <strong>VRAI !</strong> Excel est utilisé dans presque tous les secteurs (comptabilité, RH, logistique, vente, gestion de projet...). C'est un excellent exemple de savoir-faire technique ET transférable.</div>
+  </div>
+</div>
+
+<!-- BILAN RÉCAPITULATIF -->
+<div class="panel" id="panel-bilan">
+  <div class="bilan-box">
+    <div class="bilan-titre">&#128203; Récapitulatif des 4 Types de Compétences</div>
+    <div class="bilan-carte">
+      <div class="bilan-badge badge-savoir">SAVOIR</div>
+      <div class="bilan-type">&#128218; Le Savoir</div>
+      <div class="bilan-def">Connaissances théoriques et factuelles acquises par l'étude ou l'expérience. Le "je sais que..."</div>
+      <div class="bilan-ex">Ex : connaître le droit du travail, maîtriser l'histoire de son secteur, parler anglais.</div>
+    </div>
+    <div class="bilan-carte">
+      <div class="bilan-badge badge-sf">SAVOIR-FAIRE</div>
+      <div class="bilan-type">&#9881; Le Savoir-Faire</div>
+      <div class="bilan-def">Capacité à réaliser une tâche de manière compétente. Le "je sais faire..."</div>
+      <div class="bilan-ex">Ex : rédiger un rapport, utiliser Excel, animer une réunion, conduire un véhicule.</div>
+    </div>
+    <div class="bilan-carte">
+      <div class="bilan-badge badge-se">SAVOIR-ÊTRE</div>
+      <div class="bilan-type">&#128161; Le Savoir-Être</div>
+      <div class="bilan-def">Attitudes et comportements professionnels. Le "je suis capable de me comporter..."</div>
+      <div class="bilan-ex">Ex : ponctualité, empathie, adaptabilité, esprit d'équipe, rigueur, initiative.</div>
+    </div>
+    <div class="bilan-carte">
+      <div class="bilan-badge badge-trans">TRANSFÉRABLE</div>
+      <div class="bilan-type">&#128260; La Compétence Transférable</div>
+      <div class="bilan-def">Toute compétence (savoir, SF ou SE) utilisable dans plusieurs métiers ou secteurs différents.</div>
+      <div class="bilan-ex">Ex : communication, gestion du temps, résolution de problèmes, travail en équipe.</div>
+    </div>
+  </div>
+</div>
+
+<!-- VICTOIRE -->
+<div class="panel" id="panel-victoire">
+  <div class="victoire" id="victoire-box">
+    <!-- Confettis -->
+    <div class="confetti" style="left:10%;background:#D4A853;animation-delay:0s;animation-duration:2.5s"></div>
+    <div class="confetti" style="left:25%;background:#9B8FFF;animation-delay:0.3s;animation-duration:3s"></div>
+    <div class="confetti" style="left:40%;background:#50C878;animation-delay:0.6s;animation-duration:2.8s"></div>
+    <div class="confetti" style="left:55%;background:#ff6666;animation-delay:0.9s;animation-duration:3.2s"></div>
+    <div class="confetti" style="left:70%;background:#D4A853;animation-delay:1.2s;animation-duration:2.6s"></div>
+    <div class="confetti" style="left:85%;background:#B87333;animation-delay:1.5s;animation-duration:2.9s"></div>
+    <div class="confetti" style="left:15%;background:#50C878;animation-delay:0.4s;animation-duration:3.1s"></div>
+    <div class="confetti" style="left:60%;background:#9B8FFF;animation-delay:0.8s;animation-duration:2.7s"></div>
+
+    <span class="trophee">&#127942;</span>
+    <div class="victoire-titre">MISSION ACCOMPLIE !</div>
+    <div class="victoire-texte">
+      Félicitations, Agent Temporel !<br>
+      Vous avez traversé 3 époques, récupéré les 3 artefacts<br>
+      et maîtrisé les 4 types de compétences.<br><br>
+      <strong>L'Agence Temporelle des Compétences vous remercie.</strong>
+    </div>
+
+    <div class="artefacts-recap">
+      <div class="art"><span class="art-icon">&#128218;</span><div class="art-nom">Parchemin<br>du Savoir</div></div>
+      <div class="art"><span class="art-icon">&#9881;</span><div class="art-nom">Engrenage<br>Savoir-Faire</div></div>
+      <div class="art"><span class="art-icon">&#128161;</span><div class="art-nom">Cristal<br>Savoir-Être</div></div>
+    </div>
+
+    <div class="score-final">
+      <div class="score-titre">&#128203; Votre Bilan de Compétences</div>
+      <div class="score-ligne"><span>Savoir</span><span class="score-valeur">&#128218; Maîtrisé</span></div>
+      <div class="score-ligne"><span>Savoir-Faire</span><span class="score-valeur">&#9881; Maîtrisé</span></div>
+      <div class="score-ligne"><span>Savoir-Être</span><span class="score-valeur">&#128161; Maîtrisé</span></div>
+      <div class="score-ligne"><span>Compétences Transférables</span><span class="score-valeur">&#128260; Maîtrisé</span></div>
+    </div>
+
+    <div style="font-size:11px;color:#8B5E3C;line-height:1.7;font-style:italic;">
+      "Vos compétences vous appartiennent. Elles voyagent avec vous,<br>
+      d'un emploi à l'autre, d'une époque à l'autre."<br>
+      <strong style="color:#D4A853;">— Le Grand Livre des Compétences</strong>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+function toggleFC(el) { el.querySelector('.fc-r').classList.toggle('visible'); }
+
+let qcmDone={q4:false,q4b:false};
+function repondreQCM(el,correct,id) {
+  if(qcmDone[id])return; qcmDone[id]=true;
+  const parent=el.closest('.qcm-box');
+  parent.querySelectorAll('.choix').forEach(c=>c.style.pointerEvents='none');
+  if(correct){
+    el.classList.add('correct');
+    document.getElementById('fb-correct-'+id).classList.add('correct');
+  } else {
+    el.classList.add('incorrect');
+    document.getElementById('fb-incorrect-'+id).classList.add('incorrect');
+    setTimeout(()=>{
+      qcmDone[id]=false;
+      parent.querySelectorAll('.choix').forEach(c=>{c.style.pointerEvents='';c.classList.remove('correct','incorrect');});
+      document.getElementById('fb-incorrect-'+id).classList.remove('incorrect');
+    },2500);
+  }
+}
+
+function repondreVF(btn,id,correct) {
+  const fb=document.getElementById(id);
+  const parent=btn.closest('.vf-question');
+  parent.querySelectorAll('.vf-btn').forEach(b=>b.disabled=true);
+  if(correct){fb.classList.add('ok');btn.style.background='rgba(80,200,120,0.2)';}
+  else{fb.classList.add('ko');btn.style.background='rgba(255,68,68,0.15)';setTimeout(()=>{fb.classList.remove('ko');parent.querySelectorAll('.vf-btn').forEach(b=>{b.disabled=false;b.style.background='';});},2500);}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scène 3 — Agence de l'Avenir</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',Arial,sans-serif; background:linear-gradient(135deg,#050520 0%,#0a0a3a 50%,#050520 100%); color:#c8c0ff; min-height:100vh; padding:16px; }
+h1 { text-align:center; font-size:14px; letter-spacing:3px; color:#9B8FFF; text-transform:uppercase; margin-bottom:4px; text-shadow:0 0 15px rgba(123,104,238,0.6); }
+.sous-titre { text-align:center; font-size:11px; color:#6B5FEE; margin-bottom:14px; font-style:italic; }
+.musique-bar { display:flex; align-items:center; gap:8px; background:rgba(123,104,238,0.08); border:1px solid rgba(123,104,238,0.2); border-radius:6px; padding:8px 12px; margin-bottom:12px; }
+.music-icon { font-size:16px; animation:bounce 0.8s ease-in-out infinite alternate; }
+@keyframes bounce { from{transform:scale(1)} to{transform:scale(1.2)} }
+.music-label { font-size:10px; color:#7B6FEE; flex:1; }
+.tabs { display:flex; gap:3px; margin-bottom:12px; flex-wrap:wrap; }
+.tab { flex:1; min-width:60px; padding:7px 4px; text-align:center; background:rgba(123,104,238,0.08); border:1px solid rgba(123,104,238,0.25); border-radius:6px 6px 0 0; cursor:pointer; font-size:10px; color:#7B6FEE; transition:all 0.2s; letter-spacing:1px; }
+.tab.active { background:rgba(123,104,238,0.2); border-color:#9B8FFF; color:#9B8FFF; font-weight:bold; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* CRISTAL ANIMÉ */
+.cristal-zone { display:flex; justify-content:center; align-items:center; height:110px; margin-bottom:14px; position:relative; }
+.cristal-svg { animation:flotter 3s ease-in-out infinite; filter:drop-shadow(0 0 15px rgba(123,104,238,0.8)); }
+@keyframes flotter { 0%,100%{transform:translateY(0) rotate(0deg)} 33%{transform:translateY(-10px) rotate(3deg)} 66%{transform:translateY(-5px) rotate(-2deg)} }
+.halo { position:absolute; bottom:5px; width:70px; height:16px; background:radial-gradient(ellipse,rgba(123,104,238,0.4),transparent); border-radius:50%; animation:halo 3s ease-in-out infinite; }
+@keyframes halo { 0%,100%{transform:scaleX(1);opacity:0.6} 33%{transform:scaleX(0.7);opacity:0.3} }
+.particule { position:absolute; width:4px; height:4px; background:#9B8FFF; border-radius:50%; animation:part 4s ease-in-out infinite; }
+.p1{top:15%;left:20%;animation-delay:0s} .p2{top:25%;right:22%;animation-delay:1s} .p3{bottom:25%;left:28%;animation-delay:2s} .p4{top:10%;right:18%;animation-delay:1.5s}
+@keyframes part { 0%,100%{opacity:0;transform:scale(0)} 50%{opacity:1;transform:scale(1.5)} }
+
+/* FLASHCARDS */
+.fc-box { background:rgba(123,104,238,0.08); border:1px solid rgba(123,104,238,0.25); border-radius:8px; padding:14px; margin-bottom:10px; cursor:pointer; transition:all 0.3s; }
+.fc-box:hover { background:rgba(123,104,238,0.15); }
+.fc-q { font-size:12px; color:#9B8FFF; font-weight:bold; margin-bottom:6px; }
+.fc-r { font-size:12px; color:#a0a0d0; line-height:1.6; display:none; }
+.fc-r.visible { display:block; }
+.fc-ex { font-size:11px; color:#7B6FEE; margin-top:6px; background:rgba(123,104,238,0.1); padding:6px 8px; border-radius:4px; }
+.fc-hint { font-size:10px; color:#5B4FDE; margin-top:6px; }
+
+/* QCM */
+.qcm-box { background:rgba(123,104,238,0.08); border:2px solid rgba(123,104,238,0.35); border-radius:10px; padding:16px; }
+.qcm-titre { font-size:13px; color:#9B8FFF; font-weight:bold; margin-bottom:12px; line-height:1.5; }
+.qcm-perso { font-size:11px; color:#7B6FEE; font-style:italic; margin-bottom:10px; }
+.choix { display:flex; align-items:flex-start; gap:10px; background:rgba(123,104,238,0.06); border:1px solid rgba(123,104,238,0.2); border-radius:6px; padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+.choix:hover { background:rgba(123,104,238,0.15); border-color:rgba(123,104,238,0.5); }
+.choix.correct { background:rgba(80,200,120,0.12); border-color:#50C878; }
+.choix.incorrect { background:rgba(255,68,68,0.1); border-color:#ff6666; }
+.choix-lettre { width:24px; height:24px; border-radius:50%; background:rgba(123,104,238,0.2); border:1px solid #9B8FFF; display:flex; align-items:center; justify-content:center; font-size:11px; color:#9B8FFF; font-weight:bold; flex-shrink:0; }
+.choix-texte { font-size:12px; color:#a0a0d0; line-height:1.4; flex:1; }
+.feedback { padding:12px; border-radius:8px; margin-top:10px; font-size:12px; line-height:1.5; display:none; }
+.feedback.correct { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a6a3a; display:block; }
+.feedback.incorrect { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#6a2a2a; display:block; }
+
+/* APPARIEMENT */
+.app-box { background:rgba(123,104,238,0.08); border:2px solid rgba(123,104,238,0.3); border-radius:10px; padding:16px; }
+.app-titre { font-size:13px; color:#9B8FFF; font-weight:bold; margin-bottom:6px; }
+.app-consigne { font-size:11px; color:#7B6FEE; font-style:italic; margin-bottom:14px; line-height:1.5; }
+.app-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.situation { background:rgba(123,104,238,0.1); border:1px solid rgba(123,104,238,0.3); border-radius:6px; padding:8px; font-size:11px; color:#a0a0d0; cursor:pointer; transition:all 0.2s; line-height:1.4; }
+.situation:hover { background:rgba(123,104,238,0.2); }
+.situation.selected { background:rgba(155,143,255,0.2); border-color:#9B8FFF; color:#9B8FFF; }
+.savoir-etre { background:rgba(80,200,120,0.06); border:1px solid rgba(80,200,120,0.2); border-radius:6px; padding:8px; font-size:11px; color:#80b090; cursor:pointer; transition:all 0.2s; line-height:1.4; }
+.savoir-etre:hover { background:rgba(80,200,120,0.15); }
+.savoir-etre.matched { background:rgba(80,200,120,0.15); border-color:#50C878; color:#50C878; }
+.app-btn { display:block; width:100%; padding:10px; background:linear-gradient(135deg,#4B3FBE,#7B68EE); border:none; border-radius:6px; color:white; font-size:12px; font-weight:bold; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
+.app-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px rgba(123,104,238,0.4); }
+.app-feedback { font-size:12px; padding:10px; border-radius:6px; margin-top:10px; display:none; line-height:1.5; }
+.app-feedback.ok { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a6a3a; display:block; }
+.app-feedback.ko { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#6a2a2a; display:block; }
+
+/* VRAI/FAUX */
+.vf-question { background:rgba(123,104,238,0.08); border:1px solid rgba(123,104,238,0.25); border-radius:8px; padding:12px; margin-bottom:8px; }
+.vf-texte { font-size:12px; color:#9B8FFF; margin-bottom:10px; line-height:1.5; font-style:italic; }
+.vf-btns { display:flex; gap:8px; }
+.vf-btn { flex:1; padding:8px; border:1px solid; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; transition:all 0.2s; background:transparent; }
+.vf-vrai { border-color:#50C878; color:#50C878; }
+.vf-faux { border-color:#ff6666; color:#ff6666; }
+.vf-vrai:hover { background:rgba(80,200,120,0.15); }
+.vf-faux:hover { background:rgba(255,68,68,0.12); }
+.vf-feedback { font-size:11px; padding:8px; border-radius:6px; margin-top:6px; display:none; line-height:1.5; }
+.vf-feedback.ok { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a5a3a; display:block; }
+.vf-feedback.ko { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#5a2a2a; display:block; }
+
+/* PORTE */
+.porte { background:linear-gradient(135deg,#1a1a0a,#2a2a1a); border:2px solid #D4A853; border-radius:10px; padding:16px; text-align:center; animation:porte-pulse 3s ease-in-out infinite; }
+@keyframes porte-pulse { 0%,100%{box-shadow:0 0 20px rgba(212,168,83,0.3)} 50%{box-shadow:0 0 45px rgba(212,168,83,0.6)} }
+.porte-icon { font-size:36px; margin-bottom:8px; display:block; animation:spin-slow 8s linear infinite; }
+@keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.porte-titre { font-size:13px; color:#D4A853; font-weight:bold; letter-spacing:2px; margin-bottom:6px; }
+.porte-texte { font-size:11px; color:#a08040; line-height:1.5; margin-bottom:12px; }
+.porte-btn { display:inline-block; padding:10px 22px; background:linear-gradient(135deg,#4A2800,#D4A853); border:none; border-radius:6px; color:#1a0a00; font-size:12px; font-weight:bold; cursor:pointer; letter-spacing:2px; transition:all 0.3s; box-shadow:0 4px 15px rgba(212,168,83,0.4); }
+.porte-btn:hover { transform:translateY(-2px); box-shadow:0 6px 25px rgba(212,168,83,0.6); }
+
+.artefact-obtenu { background:rgba(123,104,238,0.12); border:2px solid #9B8FFF; border-radius:10px; padding:14px; text-align:center; margin-bottom:12px; display:none; }
+.artefact-obtenu.visible { display:block; animation:appear 0.5s ease-out; }
+@keyframes appear { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+.artefact-icon { font-size:40px; margin-bottom:6px; display:block; }
+.artefact-titre { font-size:14px; color:#9B8FFF; font-weight:bold; }
+.artefact-texte { font-size:11px; color:#7B6FEE; margin-top:4px; }
+</style>
+</head>
+<body>
+<h1>&#128161; Agence de l'Avenir</h1>
+<div class="sous-titre">AN 2150 — Quête du Cristal du Savoir-Être</div>
+
+<div class="musique-bar">
+  <span class="music-icon">&#127925;</span>
+  <span class="music-label">Ambiance futuriste — Synthétiseurs et électronique doux</span>
+  <audio controls style="height:26px;width:150px;"><source src="" type="audio/mpeg"></audio>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('cristal')">&#128161; CRISTAL</div>
+  <div class="tab" onclick="showTab('qcm')">&#10067; ÉNIGME</div>
+  <div class="tab" onclick="showTab('appariement')">&#128279; ASSOCIER</div>
+  <div class="tab" onclick="showTab('vraifaux')">&#9989; VRAI/FAUX</div>
+  <div class="tab" onclick="showTab('porte')">&#128682; PORTAIL</div>
+</div>
+
+<div class="artefact-obtenu" id="artefact3">
+  <span class="artefact-icon">&#128161;</span>
+  <div class="artefact-titre">&#127775; CRISTAL DU SAVOIR-ÊTRE OBTENU !</div>
+  <div class="artefact-texte">Mme Nova vous remet le Cristal. Vous maîtrisez le concept de SAVOIR-ÊTRE !</div>
+</div>
+
+<!-- CRISTAL + FLASHCARDS -->
+<div class="panel active" id="panel-cristal">
+  <div class="cristal-zone">
+    <div class="particule p1"></div><div class="particule p2"></div><div class="particule p3"></div><div class="particule p4"></div>
+    <svg class="cristal-svg" width="70" height="90" viewBox="0 0 80 100">
+      <polygon points="40,5 65,35 55,95 25,95 15,35" fill="url(#g1)" stroke="#9B8FFF" stroke-width="1.5" opacity="0.9"/>
+      <polygon points="40,5 15,35 25,95" fill="url(#g2)" opacity="0.6"/>
+      <polygon points="40,5 65,35 55,95" fill="url(#g3)" opacity="0.7"/>
+      <polygon points="40,10 58,32 50,10" fill="white" opacity="0.3"/>
+      <defs>
+        <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#9B8FFF;stop-opacity:0.8"/><stop offset="100%" style="stop-color:#4B3FBE;stop-opacity:0.7"/></linearGradient>
+        <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#3B2FAE;stop-opacity:0.8"/><stop offset="100%" style="stop-color:#7B68EE;stop-opacity:0.4"/></linearGradient>
+        <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9B8FFF;stop-opacity:0.6"/><stop offset="100%" style="stop-color:#5B4FDE;stop-opacity:0.9"/></linearGradient>
+      </defs>
+    </svg>
+    <div class="halo"></div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128161; Qu'est-ce que le SAVOIR-ÊTRE ?</div>
+    <div class="fc-r">Le SAVOIR-ÊTRE regroupe les attitudes, comportements et qualités relationnelles qui permettent de bien s'intégrer et de collaborer efficacement dans un environnement professionnel.</div>
+    <div class="fc-ex">Exemples : ponctualité, empathie, adaptabilité, esprit d'initiative, rigueur, sens du travail en équipe.</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128260; Le savoir-être se développe-t-il ?</div>
+    <div class="fc-r">Oui ! Contrairement à une idée reçue, le savoir-être n'est pas inné. Il se développe par la prise de conscience, la formation, le coaching, et surtout par la pratique au quotidien.</div>
+    <div class="fc-ex">Bon à savoir : des formations "soft skills" existent spécifiquement pour développer son savoir-être professionnel.</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128188; Le SAVOIR-ÊTRE en entretien</div>
+    <div class="fc-r">Les recruteurs observent votre savoir-être dès l'entretien : votre façon de vous présenter, d'écouter, de répondre, votre posture... C'est souvent décisif pour le recrutement !</div>
+    <div class="fc-ex">Astuce : préparez des exemples concrets de situations où vous avez démontré votre adaptabilité, votre esprit d'équipe ou votre initiative.</div>
+    <div class="fc-hint">&#128432; Cliquez pour le conseil emploi</div>
+  </div>
+</div>
+
+<!-- QCM -->
+<div class="panel" id="panel-qcm">
+  <div class="qcm-box">
+    <div class="qcm-perso">&#129302; Mme Nova vous dit : "Dans notre agence du futur, le savoir-être est la compétence la plus précieuse. Prouvez que vous le maîtrisez !"</div>
+    <div class="qcm-titre">Parmi ces éléments, lequel est un SAVOIR-ÊTRE ?</div>
+    <div class="choix" onclick="repondreQCM(this,false)"><div class="choix-lettre">A</div><div class="choix-texte">Maîtriser le logiciel Excel</div></div>
+    <div class="choix" onclick="repondreQCM(this,false)"><div class="choix-lettre">B</div><div class="choix-texte">Connaître le Code du travail</div></div>
+    <div class="choix" onclick="repondreQCM(this,true)"><div class="choix-lettre">C</div><div class="choix-texte">Faire preuve d'empathie envers ses collègues</div></div>
+    <div class="choix" onclick="repondreQCM(this,false)"><div class="choix-lettre">D</div><div class="choix-texte">Savoir rédiger un email professionnel</div></div>
+    <div class="feedback" id="fb-correct">&#127775; <strong>Parfait !</strong> L'empathie est un <strong>savoir-être</strong> : une qualité comportementale et relationnelle.<br><br>&#10060; A = Savoir-Faire | &#10060; B = Savoir | &#10060; D = Savoir-Faire<br><br>&#128161; <strong>Le Cristal du Savoir-Être vous appartient !</strong></div>
+    <div class="feedback" id="fb-incorrect">&#10060; <strong>Pas tout à fait...</strong> Un savoir-être est une <strong>attitude ou un comportement</strong> — pas une connaissance ni une technique. Observez le cristal et réessayez !</div>
+  </div>
+</div>
+
+<!-- APPARIEMENT -->
+<div class="panel" id="panel-appariement">
+  <div class="app-box">
+    <div class="app-titre">&#128279; Associez situation et savoir-être</div>
+    <div class="app-consigne">&#129302; "Cliquez sur une situation (gauche), puis sur le savoir-être correspondant (droite)."</div>
+    <div class="app-grid">
+      <div>
+        <div style="font-size:10px;color:#9B8FFF;margin-bottom:6px;letter-spacing:1px;text-align:center;">SITUATIONS</div>
+        <div class="situation" onclick="selectSit(this)" data-correct="ponctualite">&#128336; Arriver à l'heure tous les jours</div>
+        <div class="situation" onclick="selectSit(this)" data-correct="equipe">&#129309; Aider un collègue en difficulté</div>
+        <div class="situation" onclick="selectSit(this)" data-correct="adaptabilite">&#128260; S'adapter sans se plaindre à un nouveau logiciel</div>
+        <div class="situation" onclick="selectSit(this)" data-correct="ecoute">&#128483; Écouter le client sans l'interrompre</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#50C878;margin-bottom:6px;letter-spacing:1px;text-align:center;">SAVOIR-ÊTRE</div>
+        <div class="savoir-etre" onclick="matchSE(this)" data-type="ponctualite">&#9200; Ponctualité</div>
+        <div class="savoir-etre" onclick="matchSE(this)" data-type="equipe">&#127942; Esprit d'équipe</div>
+        <div class="savoir-etre" onclick="matchSE(this)" data-type="adaptabilite">&#127774; Adaptabilité</div>
+        <div class="savoir-etre" onclick="matchSE(this)" data-type="ecoute">&#128489; Écoute active</div>
+      </div>
+    </div>
+    <button class="app-btn" onclick="verifierApp()">&#10003; VÉRIFIER</button>
+    <div class="app-feedback" id="app-fb"></div>
+  </div>
+</div>
+
+<!-- VRAI/FAUX -->
+<div class="panel" id="panel-vraifaux">
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Le savoir-être ne s'apprend pas, on l'a ou on ne l'a pas."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf3a',false)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf3a',true)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf3a">&#10004; <strong>FAUX !</strong> Le savoir-être se développe et se travaille tout au long de la vie. Des formations "soft skills", du coaching, et la pratique quotidienne permettent de l'améliorer.</div>
+  </div>
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "La ponctualité est un savoir-être très valorisé par les employeurs."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf3b',true)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf3b',false)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf3b">&#10004; <strong>VRAI !</strong> La ponctualité est souvent citée comme l'un des premiers savoir-être attendus. Elle démontre le respect du travail, des collègues et de l'organisation.</div>
+  </div>
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Le savoir-être est moins important que le savoir-faire pour les recruteurs."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf3c',false)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf3c',true)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf3c">&#10004; <strong>FAUX !</strong> Les études montrent que le savoir-être est de plus en plus valorisé. Beaucoup de recruteurs préfèrent une personne avec un bon savoir-être qu'ils pourront former, plutôt qu'un expert au mauvais comportement.</div>
+  </div>
+</div>
+
+<!-- PORTAIL -->
+<div class="panel" id="panel-porte">
+  <div class="porte">
+    <span class="porte-icon">&#128218;</span>
+    <div class="porte-titre">PORTAIL — RETOUR AU PRÉSENT</div>
+    <div class="porte-texte">Le portail vers la Salle du Grand Livre s'ouvre.<br>Retournez au présent pour la mission finale.<br><br>Votre dernière mission : découvrir les <strong>Compétences Transférables</strong>.</div>
+    <button class="porte-btn" onclick="alert('Dans H5P Virtual Tour : utilisez un hotspot Go to Scene pointant vers votre Scène 4 (Grand Livre)')">
+      &#9658; RETOURNER AU PRÉSENT
+    </button>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+function toggleFC(el) { el.querySelector('.fc-r').classList.toggle('visible'); }
+
+let qcmDone=false;
+function repondreQCM(el,correct) {
+  if(qcmDone)return; qcmDone=true;
+  document.querySelectorAll('.choix').forEach(c=>c.style.pointerEvents='none');
+  if(correct){el.classList.add('correct');document.getElementById('fb-correct').classList.add('correct');document.getElementById('artefact3').classList.add('visible');}
+  else{el.classList.add('incorrect');document.getElementById('fb-incorrect').classList.add('incorrect');setTimeout(()=>{qcmDone=false;document.querySelectorAll('.choix').forEach(c=>{c.style.pointerEvents='';c.classList.remove('correct','incorrect');});document.getElementById('fb-incorrect').classList.remove('incorrect');},2500);}
+}
+
+let selSit=null,matchesSE={};
+function selectSit(el){document.querySelectorAll('.situation').forEach(s=>s.classList.remove('selected'));el.classList.add('selected');selSit=el;}
+function matchSE(el){
+  if(!selSit){alert('Cliquez d\'abord sur une situation !');return;}
+  matchesSE[selSit.dataset.correct]=el.dataset.type;
+  selSit.style.opacity='0.6';selSit.style.pointerEvents='none';
+  el.style.opacity='0.6';el.style.pointerEvents='none';
+  selSit.classList.remove('selected');selSit=null;
+}
+function verifierApp(){
+  const correct={ponctualite:'ponctualite',equipe:'equipe',adaptabilite:'adaptabilite',ecoute:'ecoute'};
+  let score=0;
+  for(let k in correct){if(matchesSE[k]===correct[k])score++;}
+  const fb=document.getElementById('app-fb');
+  if(score===4){fb.className='app-feedback ok';fb.innerHTML='&#127775; <strong>Parfait !</strong> Toutes les associations sont correctes ! Vous identifiez parfaitement les savoir-être.';}
+  else{fb.className='app-feedback ko';fb.innerHTML='&#10060; '+score+'/4 correct(s). Réfléchissez : chaque situation illustre un comportement ou une attitude spécifique.';matchesSE={};document.querySelectorAll('.situation,.savoir-etre').forEach(el=>{el.style.opacity='';el.style.pointerEvents='';});}
+}
+
+function repondreVF(btn,id,correct){
+  const fb=document.getElementById(id);
+  const parent=btn.closest('.vf-question');
+  parent.querySelectorAll('.vf-btn').forEach(b=>b.disabled=true);
+  if(correct){fb.classList.add('ok');btn.style.background='rgba(80,200,120,0.2)';}
+  else{fb.classList.add('ko');btn.style.background='rgba(255,68,68,0.15)';setTimeout(()=>{fb.classList.remove('ko');parent.querySelectorAll('.vf-btn').forEach(b=>{b.disabled=false;b.style.background='';});},2500);}
+}
+</script>
+</body>
+</html>

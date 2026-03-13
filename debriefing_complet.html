@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Débriefing — La Machine à Compétences</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+    min-height: 100vh;
+    color: #e8e0f0;
+    padding: 20px;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    text-align: center;
+    padding: 40px 20px 30px;
+    border-bottom: 2px solid rgba(180,120,255,0.3);
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .header::before {
+    content: '✦ ✦ ✦';
+    display: block;
+    color: #b47fff;
+    font-size: 18px;
+    margin-bottom: 15px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+  .header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2em;
+    background: linear-gradient(135deg, #ffd700, #b47fff, #00d4ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .header p {
+    color: #b0a0c0;
+    font-size: 1.1em;
+    font-style: italic;
+  }
+
+  /* ===== TIMER BADGE ===== */
+  .timer-badge {
+    display: inline-block;
+    background: rgba(180,120,255,0.15);
+    border: 1px solid rgba(180,120,255,0.4);
+    border-radius: 20px;
+    padding: 8px 20px;
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #b47fff;
+  }
+
+  /* ===== SECTIONS ===== */
+  .section {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(180,120,255,0.2);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  .section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #b47fff, #00d4ff, #ffd700);
+  }
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4em;
+    color: #b47fff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-icon {
+    font-size: 1.6em;
+  }
+
+  /* ===== PARTIE 1 : AUTO-ÉVALUATION ===== */
+  .competence-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+  }
+  .competence-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s;
+  }
+  .competence-card:hover { transform: translateY(-3px); }
+  .competence-card h3 {
+    font-size: 1em;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+  .competence-card .subtitle {
+    font-size: 0.8em;
+    color: #9090b0;
+    margin-bottom: 15px;
+  }
+  .card-savoir { border-top: 3px solid #ffd700; }
+  .card-savoir h3 { color: #ffd700; }
+  .card-savoir-faire { border-top: 3px solid #ff8c42; }
+  .card-savoir-faire h3 { color: #ff8c42; }
+  .card-savoir-etre { border-top: 3px solid #00d4ff; }
+  .card-savoir-etre h3 { color: #00d4ff; }
+  .card-transferable { border-top: 3px solid #b47fff; }
+  .card-transferable h3 { color: #b47fff; }
+
+  .stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .star {
+    font-size: 1.8em;
+    cursor: pointer;
+    color: #444;
+    transition: color 0.2s, transform 0.1s;
+    user-select: none;
+  }
+  .star:hover, .star.active { color: #ffd700; transform: scale(1.2); }
+
+  .competence-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 10px;
+    color: #e8e0f0;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.85em;
+    resize: vertical;
+    min-height: 70px;
+  }
+  .competence-textarea::placeholder { color: #6060a0; }
+  .competence-textarea:focus { outline: none; border-color: #b47fff; }
+
+  /* ===== PARTIE 2 : QUESTIONS DE RÉFLEXION ===== */
+  .question-block {
+    margin-bottom: 25px;
+  }
+  .question-label {
+    font-weight: 700;
+    color: #d0c0f0;
+    margin-bottom: 10px;
+    font-size: 1em;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .question-num {
+    background: linear-gradient(135deg, #b47fff, #7040c0);
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .answer-textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(180,120,255,0.3);
+    border-radius: 10px;
+    padding: 14px;
+    color: #e8e0f0;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95em;
+    resize: vertical;
+    min-height: 90px;
+    transition: border-color 0.2s;
+  }
+  .answer-textarea:focus { outline: none; border-color: #b47fff; background: rgba(180,120,255,0.08); }
+  .answer-textarea::placeholder { color: #5050a0; font-style: italic; }
+
+  /* ===== PARTIE 3 : SATISFACTION ===== */
+  .satisfaction-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+  .satisfaction-item {
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .satisfaction-item label {
+    display: block;
+    font-size: 0.85em;
+    color: #b0a0c0;
+    margin-bottom: 10px;
+  }
+  .emoji-rating {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+  }
+  .emoji-btn {
+    font-size: 1.6em;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s, transform 0.2s;
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 6px;
+  }
+  .emoji-btn:hover, .emoji-btn.selected { opacity: 1; transform: scale(1.3); }
+  .emoji-btn.selected { background: rgba(255,255,255,0.1); }
+
+  /* ===== FORUM PROMPT ===== */
+  .forum-prompt {
+    background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(180,120,255,0.08));
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 10px;
+  }
+  .forum-question {
+    background: rgba(255,255,255,0.05);
+    border-left: 3px solid #00d4ff;
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 12px;
+    font-style: italic;
+    color: #c0d8f0;
+    font-size: 0.95em;
+  }
+  .forum-tip {
+    font-size: 0.85em;
+    color: #7090b0;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+
+  /* ===== BILAN FINAL ===== */
+  .bilan-section {
+    background: linear-gradient(135deg, rgba(255,215,0,0.05), rgba(180,120,255,0.05));
+    border: 1px solid rgba(255,215,0,0.3);
+  }
+  .engagement-list {
+    list-style: none;
+    margin-top: 15px;
+  }
+  .engagement-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .engagement-list li:last-child { border-bottom: none; }
+  .engagement-check {
+    width: 22px;
+    height: 22px;
+    accent-color: #b47fff;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .engagement-list label {
+    font-size: 0.95em;
+    color: #c0b0e0;
+    cursor: pointer;
+  }
+
+  .action-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 10px;
+    padding: 14px;
+    color: #e8e0f0;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95em;
+    margin-top: 15px;
+    resize: vertical;
+    min-height: 80px;
+  }
+  .action-input:focus { outline: none; border-color: #ffd700; }
+  .action-input::placeholder { color: #6060a0; font-style: italic; }
+
+  /* ===== BOUTONS ===== */
+  .btn-group {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  .btn {
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: 'Lato', sans-serif;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-print {
+    background: linear-gradient(135deg, #b47fff, #7040c0);
+    color: white;
+    box-shadow: 0 4px 20px rgba(180,120,255,0.4);
+  }
+  .btn-print:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(180,120,255,0.6); }
+  .btn-reset {
+    background: rgba(255,255,255,0.08);
+    color: #b0a0c0;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .btn-reset:hover { background: rgba(255,255,255,0.12); }
+  .btn-forum {
+    background: linear-gradient(135deg, #00d4ff, #0080c0);
+    color: white;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+  }
+  .btn-forum:hover { transform: translateY(-2px); }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar-container {
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    height: 8px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #b47fff, #00d4ff);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-label {
+    text-align: center;
+    font-size: 0.85em;
+    color: #9080b0;
+    margin-bottom: 5px;
+  }
+
+  /* ===== CONFETTIS VICTOIRE ===== */
+  .victory-banner {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(180,120,255,0.1));
+    border: 2px solid #ffd700;
+    border-radius: 16px;
+    margin-top: 20px;
+    animation: glow 2s ease-in-out infinite;
+  }
+  @keyframes glow { 0%,100%{box-shadow:0 0 20px rgba(255,215,0,0.3)} 50%{box-shadow:0 0 40px rgba(255,215,0,0.6)} }
+  .victory-banner h2 {
+    font-family: 'Cinzel', serif;
+    color: #ffd700;
+    font-size: 1.8em;
+    margin-bottom: 10px;
+  }
+  .victory-banner p { color: #c0b0e0; }
+
+  /* ===== PRINT ===== */
+  @media print {
+    body { background: white; color: #1a1a2e; padding: 10px; }
+    .section { border: 1px solid #ccc; background: white; break-inside: avoid; }
+    .section::before { display: none; }
+    .section-title { color: #4a0080; }
+    .btn-group { display: none; }
+    .header h1 { -webkit-text-fill-color: #1a1a2e; color: #1a1a2e; }
+    .answer-textarea, .competence-textarea, .action-input {
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      color: #1a1a2e;
+    }
+    .star.active { color: #ffd700; }
+    .competence-card { border: 1px solid #ddd; background: #f9f9f9; }
+    .forum-prompt { background: #f0f0f0; border: 1px solid #ccc; }
+    .forum-question { color: #1a1a2e; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>🔮 Débriefing — La Machine à Compétences</h1>
+  <p>Prenez le temps de réfléchir à ce que vous avez découvert sur vous-même</p>
+  <div class="timer-badge">⏱️ Durée estimée du débriefing : 15 à 20 minutes</div>
+</div>
+
+<!-- BARRE DE PROGRESSION -->
+<div class="progress-label">Progression du débriefing : <span id="progressPct">0%</span></div>
+<div class="progress-bar-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<!-- ===== PARTIE 1 : AUTO-ÉVALUATION ===== -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-icon">⭐</span>
+    Partie 1 — Mon auto-évaluation des compétences
+  </div>
+  <p style="color:#9080b0; margin-bottom:20px; font-size:0.9em;">
+    Pour chaque type de compétence, évaluez votre niveau de maîtrise <strong>avant</strong> l'escape game, 
+    puis notez une compétence concrète que vous possédez.
+  </p>
+
+  <div class="competence-grid">
+
+    <!-- SAVOIR -->
+    <div class="competence-card card-savoir">
+      <h3>📚 SAVOIR</h3>
+      <div class="subtitle">Connaissances théoriques et factuelles</div>
+      <div style="font-size:0.8em; color:#9090b0; margin-bottom:8px;">Mon niveau :</div>
+      <div class="stars" data-group="savoir">
+        <span class="star" data-val="1">★</span>
+        <span class="star" data-val="2">★</span>
+        <span class="star" data-val="3">★</span>
+        <span class="star" data-val="4">★</span>
+        <span class="star" data-val="5">★</span>
+      </div>
+      <textarea class="competence-textarea" placeholder="Ex : Je maîtrise les règles de la communication professionnelle..."></textarea>
+    </div>
+
+    <!-- SAVOIR-FAIRE -->
+    <div class="competence-card card-savoir-faire">
+      <h3>🔧 SAVOIR-FAIRE</h3>
+      <div class="subtitle">Compétences techniques et pratiques</div>
+      <div style="font-size:0.8em; color:#9090b0; margin-bottom:8px;">Mon niveau :</div>
+      <div class="stars" data-group="savoir-faire">
+        <span class="star" data-val="1">★</span>
+        <span class="star" data-val="2">★</span>
+        <span class="star" data-val="3">★</span>
+        <span class="star" data-val="4">★</span>
+        <span class="star" data-val="5">★</span>
+      </div>
+      <textarea class="competence-textarea" placeholder="Ex : Je sais utiliser un tableur, rédiger un rapport..."></textarea>
+    </div>
+
+    <!-- SAVOIR-ÊTRE -->
+    <div class="competence-card card-savoir-etre">
+      <h3>💎 SAVOIR-ÊTRE</h3>
+      <div class="subtitle">Qualités personnelles et comportementales</div>
+      <div style="font-size:0.8em; color:#9090b0; margin-bottom:8px;">Mon niveau :</div>
+      <div class="stars" data-group="savoir-etre">
+        <span class="star" data-val="1">★</span>
+        <span class="star" data-val="2">★</span>
+        <span class="star" data-val="3">★</span>
+        <span class="star" data-val="4">★</span>
+        <span class="star" data-val="5">★</span>
+      </div>
+      <textarea class="competence-textarea" placeholder="Ex : Je suis à l'écoute, je m'adapte facilement..."></textarea>
+    </div>
+
+    <!-- TRANSFÉRABLES -->
+    <div class="competence-card card-transferable">
+      <h3>🌀 COMPÉTENCES TRANSFÉRABLES</h3>
+      <div class="subtitle">Utilisables dans plusieurs contextes</div>
+      <div style="font-size:0.8em; color:#9090b0; margin-bottom:8px;">Mon niveau :</div>
+      <div class="stars" data-group="transferable">
+        <span class="star" data-val="1">★</span>
+        <span class="star" data-val="2">★</span>
+        <span class="star" data-val="3">★</span>
+        <span class="star" data-val="4">★</span>
+        <span class="star" data-val="5">★</span>
+      </div>
+      <textarea class="competence-textarea" placeholder="Ex : La gestion du stress que j'ai développée en sport, je l'utilise au travail..."></textarea>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== PARTIE 2 : QUESTIONS DE RÉFLEXION ===== -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-icon">💭</span>
+    Partie 2 — Questions de réflexion
+  </div>
+
+  <div class="question-block">
+    <div class="question-label">
+      <div class="question-num">1</div>
+      Quelle scène vous a le plus marqué(e) et pourquoi ?
+    </div>
+    <textarea class="answer-textarea" placeholder="Décrivez la scène et ce qu'elle vous a fait ressentir ou découvrir..."></textarea>
+  </div>
+
+  <div class="question-block">
+    <div class="question-label">
+      <div class="question-num">2</div>
+      Quelle compétence avez-vous découverte en vous qui vous a surpris(e) ?
+    </div>
+    <textarea class="answer-textarea" placeholder="Pensez à une qualité ou une capacité que vous n'aviez pas forcément identifiée avant..."></textarea>
+  </div>
+
+  <div class="question-block">
+    <div class="question-label">
+      <div class="question-num">3</div>
+      Comment avez-vous réagi face aux difficultés pendant le jeu ? Qu'est-ce que cela dit de votre savoir-être ?
+    </div>
+    <textarea class="answer-textarea" placeholder="Avez-vous persévéré, demandé de l'aide, cherché une autre approche ?..."></textarea>
+  </div>
+
+  <div class="question-block">
+    <div class="question-label">
+      <div class="question-num">4</div>
+      Citez une compétence transférable que vous avez utilisée pendant l'escape game, venue d'un autre domaine de votre vie (sport, famille, loisirs...).
+    </div>
+    <textarea class="answer-textarea" placeholder="Ex : Ma patience développée en jardinage m'a aidé à résoudre les énigmes calmement..."></textarea>
+  </div>
+
+  <div class="question-block">
+    <div class="question-label">
+      <div class="question-num">5</div>
+      Comment allez-vous valoriser vos compétences lors de votre prochain entretien d'embauche ?
+    </div>
+    <textarea class="answer-textarea" placeholder="Rédigez 2-3 phrases que vous pourriez dire à un recruteur..."></textarea>
+  </div>
+
+  <div class="question-block">
+    <div class="question-label">
+      <div class="question-num">6</div>
+      Quelle est la différence principale entre un savoir-faire et un savoir-être ? Donnez un exemple personnel pour chacun.
+    </div>
+    <textarea class="answer-textarea" placeholder="Savoir-faire : ... / Savoir-être : ..."></textarea>
+  </div>
+</div>
+
+<!-- ===== PARTIE 3 : SATISFACTION ===== -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-icon">📊</span>
+    Partie 3 — Évaluation de l'escape game
+  </div>
+  <p style="color:#9080b0; margin-bottom:20px; font-size:0.9em;">
+    Votre avis nous aide à améliorer le jeu. Cliquez sur l'emoji qui correspond à votre ressenti.
+  </p>
+
+  <div class="satisfaction-grid">
+    <div class="satisfaction-item">
+      <label>Plaisir et ludique</label>
+      <div class="emoji-rating" data-group="plaisir">
+        <button class="emoji-btn" data-val="1">😞</button>
+        <button class="emoji-btn" data-val="2">😐</button>
+        <button class="emoji-btn" data-val="3">🙂</button>
+        <button class="emoji-btn" data-val="4">😊</button>
+        <button class="emoji-btn" data-val="5">🤩</button>
+      </div>
+    </div>
+    <div class="satisfaction-item">
+      <label>Clarté des consignes</label>
+      <div class="emoji-rating" data-group="clarte">
+        <button class="emoji-btn" data-val="1">😞</button>
+        <button class="emoji-btn" data-val="2">😐</button>
+        <button class="emoji-btn" data-val="3">🙂</button>
+        <button class="emoji-btn" data-val="4">😊</button>
+        <button class="emoji-btn" data-val="5">🤩</button>
+      </div>
+    </div>
+    <div class="satisfaction-item">
+      <label>Utilité pédagogique</label>
+      <div class="emoji-rating" data-group="utilite">
+        <button class="emoji-btn" data-val="1">😞</button>
+        <button class="emoji-btn" data-val="2">😐</button>
+        <button class="emoji-btn" data-val="3">🙂</button>
+        <button class="emoji-btn" data-val="4">😊</button>
+        <button class="emoji-btn" data-val="5">🤩</button>
+      </div>
+    </div>
+    <div class="satisfaction-item">
+      <label>Difficulté adaptée</label>
+      <div class="emoji-rating" data-group="difficulte">
+        <button class="emoji-btn" data-val="1">😞</button>
+        <button class="emoji-btn" data-val="2">😐</button>
+        <button class="emoji-btn" data-val="3">🙂</button>
+        <button class="emoji-btn" data-val="4">😊</button>
+        <button class="emoji-btn" data-val="5">🤩</button>
+      </div>
+    </div>
+    <div class="satisfaction-item">
+      <label>Immersion et ambiance</label>
+      <div class="emoji-rating" data-group="immersion">
+        <button class="emoji-btn" data-val="1">😞</button>
+        <button class="emoji-btn" data-val="2">😐</button>
+        <button class="emoji-btn" data-val="3">🙂</button>
+        <button class="emoji-btn" data-val="4">😊</button>
+        <button class="emoji-btn" data-val="5">🤩</button>
+      </div>
+    </div>
+    <div class="satisfaction-item">
+      <label>Je recommande ce jeu</label>
+      <div class="emoji-rating" data-group="recommande">
+        <button class="emoji-btn" data-val="1">👎</button>
+        <button class="emoji-btn" data-val="2">🤔</button>
+        <button class="emoji-btn" data-val="3">👍</button>
+        <button class="emoji-btn" data-val="4">💪</button>
+        <button class="emoji-btn" data-val="5">❤️</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-block">
+    <div class="question-label" style="margin-top:10px;">
+      <div class="question-num">💬</div>
+      Votre commentaire libre sur l'escape game :
+    </div>
+    <textarea class="answer-textarea" placeholder="Ce que j'ai aimé, ce que je changerais, mes suggestions..."></textarea>
+  </div>
+</div>
+
+<!-- ===== FORUM PROMPT ===== -->
+<div class="section">
+  <div class="section-title">
+    <span class="section-icon">🗣️</span>
+    Partie 4 — Partage dans le Forum de débriefing
+  </div>
+  <p style="color:#9080b0; margin-bottom:20px; font-size:0.9em;">
+    Après avoir complété ce bilan, partagez votre réflexion dans le forum du cours. 
+    Voici les questions auxquelles répondre dans votre message :
+  </p>
+
+  <div class="forum-prompt">
+    <div class="forum-question">
+      💬 "Quelle compétence avez-vous découverte en vous pendant l'escape game qui vous a surpris(e) ?"
+    </div>
+    <div class="forum-question">
+      🌀 "Citez une compétence transférable que vous allez valoriser dans votre recherche d'emploi et expliquez d'où elle vient."
+    </div>
+    <div class="forum-question">
+      🤝 "Répondez au message d'un(e) autre participant(e) : reconnaissez-vous une compétence chez lui/elle qu'il/elle n'a pas mentionnée ?"
+    </div>
+    <div class="forum-tip">
+      💡 <strong>Conseil :</strong> Votre message dans le forum doit faire au moins 5 lignes. Soyez précis(e) et donnez des exemples concrets tirés de votre expérience personnelle ou professionnelle.
+    </div>
+  </div>
+</div>
+
+<!-- ===== BILAN ET ENGAGEMENT ===== -->
+<div class="section bilan-section">
+  <div class="section-title">
+    <span class="section-icon">🏆</span>
+    Partie 5 — Mon engagement post-formation
+  </div>
+  <p style="color:#9080b0; margin-bottom:20px; font-size:0.9em;">
+    Cochez les engagements que vous prenez suite à cet escape game :
+  </p>
+
+  <ul class="engagement-list">
+    <li>
+      <input type="checkbox" class="engagement-check" id="eng1">
+      <label for="eng1">Je vais lister mes 5 principales compétences sur mon CV dans les 7 prochains jours</label>
+    </li>
+    <li>
+      <input type="checkbox" class="engagement-check" id="eng2">
+      <label for="eng2">Je vais préparer 3 exemples concrets de compétences à citer en entretien</label>
+    </li>
+    <li>
+      <input type="checkbox" class="engagement-check" id="eng3">
+      <label for="eng3">Je vais identifier 2 compétences transférables issues de ma vie personnelle</label>
+    </li>
+    <li>
+      <input type="checkbox" class="engagement-check" id="eng4">
+      <label for="eng4">Je vais partager ma réflexion dans le forum du cours avant la fin de la semaine</label>
+    </li>
+    <li>
+      <input type="checkbox" class="engagement-check" id="eng5">
+      <label for="eng5">Je vais demander à 3 personnes de mon entourage de me citer mes points forts</label>
+    </li>
+    <li>
+      <input type="checkbox" class="engagement-check" id="eng6">
+      <label for="eng6">Je vais mettre à jour mon profil LinkedIn avec mes compétences identifiées</label>
+    </li>
+  </ul>
+
+  <textarea class="action-input" placeholder="Mon action prioritaire pour cette semaine : je m'engage à..."></textarea>
+</div>
+
+<!-- BOUTONS -->
+<div class="btn-group">
+  <button class="btn btn-print" onclick="window.print()">🖨️ Imprimer ma fiche bilan</button>
+  <button class="btn btn-reset" onclick="resetForm()">🔄 Recommencer</button>
+</div>
+
+<!-- VICTOIRE -->
+<div class="victory-banner" id="victoryBanner">
+  <h2>🎉 Félicitations !</h2>
+  <p>Vous avez complété votre bilan de compétences.<br>
+  Vous êtes maintenant prêt(e) à valoriser vos compétences avec confiance !</p>
+  <div style="font-size:2em; margin-top:15px;">🌟 ⚡ 🏆 ⚡ 🌟</div>
+</div>
+
+<script>
+// ===== ÉTOILES =====
+document.querySelectorAll('.stars').forEach(group => {
+  const stars = group.querySelectorAll('.star');
+  stars.forEach((star, idx) => {
+    star.addEventListener('click', () => {
+      stars.forEach((s, i) => {
+        s.classList.toggle('active', i <= idx);
+      });
+      updateProgress();
+    });
+    star.addEventListener('mouseover', () => {
+      stars.forEach((s, i) => s.style.color = i <= idx ? '#ffd700' : '#444');
+    });
+    star.addEventListener('mouseout', () => {
+      stars.forEach(s => s.style.color = s.classList.contains('active') ? '#ffd700' : '#444');
+    });
+  });
+});
+
+// ===== EMOJIS =====
+document.querySelectorAll('.emoji-rating').forEach(group => {
+  const btns = group.querySelectorAll('.emoji-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateProgress();
+    });
+  });
+});
+
+// ===== PROGRESSION =====
+function updateProgress() {
+  let total = 0, filled = 0;
+
+  // Étoiles (4 groupes)
+  document.querySelectorAll('.stars').forEach(g => {
+    total++;
+    if (g.querySelector('.star.active')) filled++;
+  });
+
+  // Textareas
+  document.querySelectorAll('textarea').forEach(t => {
+    total++;
+    if (t.value.trim().length > 10) filled++;
+  });
+
+  // Emojis
+  document.querySelectorAll('.emoji-rating').forEach(g => {
+    total++;
+    if (g.querySelector('.emoji-btn.selected')) filled++;
+  });
+
+  const pct = Math.round((filled / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  if (pct >= 80) {
+    document.getElementById('victoryBanner').style.display = 'block';
+  }
+}
+
+// Écouter les textareas
+document.querySelectorAll('textarea').forEach(t => {
+  t.addEventListener('input', updateProgress);
+});
+document.querySelectorAll('.engagement-check').forEach(c => {
+  c.addEventListener('change', updateProgress);
+});
+
+// ===== RESET =====
+function resetForm() {
+  if (!confirm('Voulez-vous vraiment recommencer ? Toutes vos réponses seront effacées.')) return;
+  document.querySelectorAll('textarea').forEach(t => t.value = '');
+  document.querySelectorAll('.star').forEach(s => { s.classList.remove('active'); s.style.color = '#444'; });
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.engagement-check').forEach(c => c.checked = false);
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressPct').textContent = '0%';
+  document.getElementById('victoryBanner').style.display = 'none';
+}
+</script>
+</body>
+</html>

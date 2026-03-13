@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scène 2 — Fabrique Industrielle</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #0f0a05 0%, #1a1005 50%, #0f0a05 100%);
+  color: #d4c4a0;
+  min-height: 100vh;
+  padding: 16px;
+}
+h1 { text-align:center; font-size:14px; letter-spacing:3px; color:#B87333; text-transform:uppercase; margin-bottom:4px; text-shadow:0 0 15px rgba(184,115,51,0.6); }
+.sous-titre { text-align:center; font-size:11px; color:#8B5E3C; margin-bottom:14px; font-style:italic; }
+
+.musique-bar { display:flex; align-items:center; gap:8px; background:rgba(184,115,51,0.08); border:1px solid rgba(184,115,51,0.2); border-radius:6px; padding:8px 12px; margin-bottom:12px; }
+.music-icon { font-size:16px; animation:bounce 0.8s ease-in-out infinite alternate; }
+@keyframes bounce { from{transform:scale(1)} to{transform:scale(1.2)} }
+.music-label { font-size:10px; color:#a08040; flex:1; }
+
+.tabs { display:flex; gap:3px; margin-bottom:12px; flex-wrap:wrap; }
+.tab { flex:1; min-width:70px; padding:7px 4px; text-align:center; background:rgba(184,115,51,0.08); border:1px solid rgba(184,115,51,0.25); border-radius:6px 6px 0 0; cursor:pointer; font-size:10px; color:#a08040; transition:all 0.2s; letter-spacing:1px; }
+.tab.active { background:rgba(184,115,51,0.2); border-color:#B87333; color:#B87333; font-weight:bold; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* ENGRENAGE ANIMÉ */
+.engrenage-zone { display:flex; justify-content:center; align-items:center; height:100px; position:relative; margin-bottom:14px; }
+.eng { position:absolute; }
+.eng-grand { animation:tourner 4s linear infinite; }
+.eng-petit { animation:tourner-inv 2.5s linear infinite; }
+@keyframes tourner { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes tourner-inv { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
+
+/* FLASHCARDS */
+.fc-box { background:rgba(184,115,51,0.08); border:1px solid rgba(184,115,51,0.25); border-radius:8px; padding:14px; margin-bottom:10px; cursor:pointer; transition:all 0.3s; }
+.fc-box:hover { background:rgba(184,115,51,0.15); }
+.fc-q { font-size:12px; color:#B87333; font-weight:bold; margin-bottom:6px; }
+.fc-r { font-size:12px; color:#c4a870; line-height:1.6; display:none; }
+.fc-r.visible { display:block; }
+.fc-ex { font-size:11px; color:#8B5E3C; margin-top:6px; background:rgba(184,115,51,0.1); padding:6px 8px; border-radius:4px; }
+.fc-hint { font-size:10px; color:#6B4A2A; margin-top:6px; }
+
+/* APPARIEMENT */
+.appariement-box { background:rgba(184,115,51,0.08); border:2px solid rgba(184,115,51,0.3); border-radius:10px; padding:16px; }
+.app-titre { font-size:13px; color:#B87333; font-weight:bold; margin-bottom:6px; }
+.app-consigne { font-size:11px; color:#8B5E3C; font-style:italic; margin-bottom:14px; line-height:1.5; }
+.app-colonnes { display:flex; gap:10px; }
+.col-actions, .col-types { flex:1; }
+.col-titre { font-size:10px; letter-spacing:2px; color:#B87333; margin-bottom:8px; text-align:center; font-weight:bold; }
+.action-item {
+  background:rgba(184,115,51,0.1); border:1px solid rgba(184,115,51,0.3);
+  border-radius:6px; padding:8px 10px; margin-bottom:6px; font-size:11px; color:#c4a870;
+  cursor:pointer; transition:all 0.2s; line-height:1.4;
+}
+.action-item:hover { background:rgba(184,115,51,0.2); border-color:#B87333; }
+.action-item.selected { background:rgba(212,168,83,0.2); border-color:#D4A853; color:#D4A853; }
+.type-item {
+  background:rgba(74,40,0,0.15); border:1px solid rgba(184,115,51,0.25);
+  border-radius:6px; padding:8px 10px; margin-bottom:6px; font-size:11px; color:#a08040;
+  cursor:pointer; transition:all 0.2s; line-height:1.4; min-height:44px;
+  display:flex; align-items:center;
+}
+.type-item:hover { background:rgba(184,115,51,0.15); }
+.type-item.matched-ok { background:rgba(80,200,120,0.12); border-color:#50C878; color:#50C878; }
+.type-item.matched-ko { background:rgba(255,68,68,0.1); border-color:#ff6666; color:#ff6666; }
+.app-btn { display:block; width:100%; margin-top:12px; padding:10px; background:linear-gradient(135deg,#6B3F1C,#B87333); border:none; border-radius:6px; color:#F5E6C8; font-size:12px; font-weight:bold; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
+.app-btn:hover { transform:translateY(-1px); box-shadow:0 4px 15px rgba(184,115,51,0.4); }
+.app-feedback { font-size:12px; padding:10px; border-radius:6px; margin-top:10px; display:none; line-height:1.5; }
+.app-feedback.ok { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a6a3a; display:block; }
+.app-feedback.ko { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#6a2a2a; display:block; }
+
+/* QCM */
+.qcm-box { background:rgba(184,115,51,0.08); border:2px solid rgba(184,115,51,0.35); border-radius:10px; padding:16px; }
+.qcm-titre { font-size:13px; color:#B87333; font-weight:bold; margin-bottom:12px; line-height:1.5; }
+.qcm-perso { font-size:11px; color:#8B5E3C; font-style:italic; margin-bottom:10px; }
+.choix { display:flex; align-items:flex-start; gap:10px; background:rgba(184,115,51,0.06); border:1px solid rgba(184,115,51,0.2); border-radius:6px; padding:10px 12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+.choix:hover { background:rgba(184,115,51,0.15); border-color:rgba(184,115,51,0.5); }
+.choix.correct { background:rgba(80,200,120,0.12); border-color:#50C878; }
+.choix.incorrect { background:rgba(255,68,68,0.1); border-color:#ff6666; }
+.choix-lettre { width:24px; height:24px; border-radius:50%; background:rgba(184,115,51,0.2); border:1px solid #B87333; display:flex; align-items:center; justify-content:center; font-size:11px; color:#B87333; font-weight:bold; flex-shrink:0; }
+.choix-texte { font-size:12px; color:#c4a870; line-height:1.4; flex:1; }
+.feedback { padding:12px; border-radius:8px; margin-top:10px; font-size:12px; line-height:1.5; display:none; }
+.feedback.correct { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a6a3a; display:block; }
+.feedback.incorrect { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#6a2a2a; display:block; }
+
+/* VRAI/FAUX */
+.vf-question { background:rgba(184,115,51,0.08); border:1px solid rgba(184,115,51,0.25); border-radius:8px; padding:12px; margin-bottom:8px; }
+.vf-texte { font-size:12px; color:#B87333; margin-bottom:10px; line-height:1.5; font-style:italic; }
+.vf-btns { display:flex; gap:8px; }
+.vf-btn { flex:1; padding:8px; border:1px solid; border-radius:6px; cursor:pointer; font-size:12px; font-weight:bold; transition:all 0.2s; background:transparent; }
+.vf-vrai { border-color:#50C878; color:#50C878; }
+.vf-faux { border-color:#ff6666; color:#ff6666; }
+.vf-vrai:hover { background:rgba(80,200,120,0.15); }
+.vf-faux:hover { background:rgba(255,68,68,0.12); }
+.vf-feedback { font-size:11px; padding:8px; border-radius:6px; margin-top:6px; display:none; line-height:1.5; }
+.vf-feedback.ok { background:rgba(80,200,120,0.12); border:1px solid #50C878; color:#2a5a3a; display:block; }
+.vf-feedback.ko { background:rgba(255,68,68,0.1); border:1px solid #ff6666; color:#5a2a2a; display:block; }
+
+/* PORTE */
+.porte { background:linear-gradient(135deg,#0a1a3a,#1a2a5a); border:2px solid #4a90d9; border-radius:10px; padding:16px; text-align:center; animation:porte-pulse 3s ease-in-out infinite; }
+@keyframes porte-pulse { 0%,100%{box-shadow:0 0 20px rgba(74,144,217,0.3)} 50%{box-shadow:0 0 45px rgba(74,144,217,0.6)} }
+.porte-icon { font-size:36px; margin-bottom:8px; display:block; animation:spin-slow 8s linear infinite; }
+@keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.porte-titre { font-size:13px; color:#4a90d9; font-weight:bold; letter-spacing:2px; margin-bottom:6px; }
+.porte-texte { font-size:11px; color:#8090b0; line-height:1.5; margin-bottom:12px; }
+.porte-btn { display:inline-block; padding:10px 22px; background:linear-gradient(135deg,#1a3a6a,#4a90d9); border:none; border-radius:6px; color:white; font-size:12px; font-weight:bold; cursor:pointer; letter-spacing:2px; transition:all 0.3s; box-shadow:0 4px 15px rgba(74,144,217,0.4); }
+.porte-btn:hover { transform:translateY(-2px); box-shadow:0 6px 25px rgba(74,144,217,0.6); }
+
+.artefact-obtenu { background:rgba(184,115,51,0.12); border:2px solid #B87333; border-radius:10px; padding:14px; text-align:center; margin-bottom:12px; display:none; }
+.artefact-obtenu.visible { display:block; animation:appear 0.5s ease-out; }
+@keyframes appear { from{transform:scale(0.8);opacity:0} to{transform:scale(1);opacity:1} }
+.artefact-icon { font-size:40px; margin-bottom:6px; display:block; }
+.artefact-titre { font-size:14px; color:#B87333; font-weight:bold; }
+.artefact-texte { font-size:11px; color:#a08040; margin-top:4px; }
+</style>
+</head>
+<body>
+
+<h1>&#9881; Fabrique Industrielle</h1>
+<div class="sous-titre">AN 1880 — Quête de l'Engrenage du Savoir-Faire</div>
+
+<div class="musique-bar">
+  <span class="music-icon">&#127925;</span>
+  <span class="music-label">Ambiance industrielle — Vapeur et rythme mécanique</span>
+  <audio controls style="height:26px;width:150px;">
+    <source src="" type="audio/mpeg">
+  </audio>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('flashcards')">&#9881; SAVOIRS</div>
+  <div class="tab" onclick="showTab('appariement')">&#128279; ASSOCIER</div>
+  <div class="tab" onclick="showTab('qcm')">&#10067; ÉNIGME</div>
+  <div class="tab" onclick="showTab('vraifaux')">&#9989; VRAI/FAUX</div>
+  <div class="tab" onclick="showTab('porte')">&#128682; PORTAIL</div>
+</div>
+
+<div class="artefact-obtenu" id="artefact2">
+  <span class="artefact-icon">&#9881;</span>
+  <div class="artefact-titre">&#127775; ENGRENAGE DU SAVOIR-FAIRE OBTENU !</div>
+  <div class="artefact-texte">Le contremaître vous remet l'Engrenage. Vous maîtrisez le concept de SAVOIR-FAIRE !</div>
+</div>
+
+<!-- FLASHCARDS SAVOIR-FAIRE -->
+<div class="panel active" id="panel-flashcards">
+  <div class="engrenage-zone">
+    <div class="eng eng-grand" style="left:30%">
+      <svg width="80" height="80" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="28" fill="#6B3F1C" stroke="#B87333" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="14" fill="#1a1005" stroke="#B87333" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="5" fill="#B87333"/>
+        <rect x="46" y="8" width="8" height="14" rx="2" fill="#B87333"/>
+        <rect x="46" y="78" width="8" height="14" rx="2" fill="#B87333"/>
+        <rect x="8" y="46" width="14" height="8" rx="2" fill="#B87333"/>
+        <rect x="78" y="46" width="14" height="8" rx="2" fill="#B87333"/>
+        <rect x="20" y="20" width="8" height="14" rx="2" fill="#B87333" transform="rotate(45 24 27)"/>
+        <rect x="68" y="20" width="8" height="14" rx="2" fill="#B87333" transform="rotate(-45 72 27)"/>
+        <rect x="20" y="66" width="8" height="14" rx="2" fill="#B87333" transform="rotate(-45 24 73)"/>
+        <rect x="68" y="66" width="8" height="14" rx="2" fill="#B87333" transform="rotate(45 72 73)"/>
+      </svg>
+    </div>
+    <div class="eng eng-petit" style="left:58%;top:15px">
+      <svg width="55" height="55" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="28" fill="#4A2800" stroke="#D4A853" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="14" fill="#1a1005" stroke="#D4A853" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="5" fill="#D4A853"/>
+        <rect x="46" y="8" width="8" height="14" rx="2" fill="#D4A853"/>
+        <rect x="46" y="78" width="8" height="14" rx="2" fill="#D4A853"/>
+        <rect x="8" y="46" width="14" height="8" rx="2" fill="#D4A853"/>
+        <rect x="78" y="46" width="14" height="8" rx="2" fill="#D4A853"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#9881; Qu'est-ce que le SAVOIR-FAIRE ?</div>
+    <div class="fc-r">Le SAVOIR-FAIRE est la capacité à réaliser une tâche ou une action de manière compétente. C'est le "je sais faire" — une compétence pratique et opérationnelle.</div>
+    <div class="fc-ex">Exemples : utiliser un logiciel, rédiger un rapport, conduire un véhicule, animer une réunion.</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128260; Les 3 types de savoir-faire</div>
+    <div class="fc-r"><strong>Technique :</strong> maîtriser un outil ou une procédure spécifique.<br><strong>Relationnel :</strong> savoir communiquer, négocier, animer.<br><strong>Transférable :</strong> applicable dans plusieurs métiers différents.</div>
+    <div class="fc-ex">Le savoir-faire transférable est le plus précieux lors d'une reconversion !</div>
+    <div class="fc-hint">&#128432; Cliquez pour révéler</div>
+  </div>
+
+  <div class="fc-box" onclick="toggleFC(this)">
+    <div class="fc-q">&#128188; Le SAVOIR-FAIRE sur un CV</div>
+    <div class="fc-r">Sur un CV, les savoir-faire se traduisent par des verbes d'action concrets : "Je maîtrise...", "Je suis capable de...", "J'ai réalisé...", "Je gère..."</div>
+    <div class="fc-ex">Astuce : quantifiez vos savoir-faire ! "J'ai géré une équipe de 5 personnes" est plus fort que "je travaille en équipe".</div>
+    <div class="fc-hint">&#128432; Cliquez pour le conseil emploi</div>
+  </div>
+</div>
+
+<!-- APPARIEMENT -->
+<div class="panel" id="panel-appariement">
+  <div class="appariement-box">
+    <div class="app-titre">&#128279; Jeu d'Appariement — Le Contremaître vous teste</div>
+    <div class="app-consigne">&#129489; "Associez chaque action professionnelle à son type de savoir-faire. Cliquez sur une action, puis sur le type correspondant."</div>
+
+    <div class="app-colonnes">
+      <div class="col-actions">
+        <div class="col-titre">ACTIONS</div>
+        <div class="action-item" onclick="selectAction(this)" data-correct="technique">&#128295; Utiliser un logiciel de paie</div>
+        <div class="action-item" onclick="selectAction(this)" data-correct="relationnel">&#128101; Animer une réunion d'équipe</div>
+        <div class="action-item" onclick="selectAction(this)" data-correct="transferable">&#128203; Rédiger un rapport professionnel</div>
+        <div class="action-item" onclick="selectAction(this)" data-correct="specifique">&#128663; Conduire un chariot élévateur</div>
+      </div>
+      <div class="col-types">
+        <div class="col-titre">TYPES</div>
+        <div class="type-item" onclick="matchType(this)" data-type="technique">&#9881; Savoir-faire technique</div>
+        <div class="type-item" onclick="matchType(this)" data-type="relationnel">&#128483; Savoir-faire relationnel</div>
+        <div class="type-item" onclick="matchType(this)" data-type="transferable">&#128260; Savoir-faire transférable</div>
+        <div class="type-item" onclick="matchType(this)" data-type="specifique">&#128295; Savoir-faire très spécifique</div>
+      </div>
+    </div>
+
+    <button class="app-btn" onclick="verifierAppariement()">&#10003; VÉRIFIER MES ASSOCIATIONS</button>
+    <div class="app-feedback" id="app-feedback"></div>
+  </div>
+</div>
+
+<!-- QCM -->
+<div class="panel" id="panel-qcm">
+  <div class="qcm-box">
+    <div class="qcm-perso">&#129489; Le contremaître vous dit : "Avant de vous remettre l'Engrenage, prouvez que vous comprenez les savoir-faire transférables !"</div>
+    <div class="qcm-titre">Parmi ces savoir-faire, lequel est le plus facilement transférable d'un métier à un autre ?</div>
+
+    <div class="choix" onclick="repondreQCM(this, false)">
+      <div class="choix-lettre">A</div>
+      <div class="choix-texte">Conduire un chariot élévateur en entrepôt</div>
+    </div>
+    <div class="choix" onclick="repondreQCM(this, false)">
+      <div class="choix-lettre">B</div>
+      <div class="choix-texte">Maîtriser le logiciel de gestion spécifique à l'entreprise</div>
+    </div>
+    <div class="choix" onclick="repondreQCM(this, true)">
+      <div class="choix-lettre">C</div>
+      <div class="choix-texte">Savoir communiquer clairement à l'écrit et à l'oral</div>
+    </div>
+    <div class="choix" onclick="repondreQCM(this, false)">
+      <div class="choix-lettre">D</div>
+      <div class="choix-texte">Connaître les machines spécifiques de cette usine</div>
+    </div>
+
+    <div class="feedback" id="fb-correct">
+      &#127775; <strong>Bravo !</strong> Savoir communiquer à l'écrit et à l'oral est un <strong>savoir-faire transférable</strong> : il s'applique dans tous les métiers, tous les secteurs !<br><br>
+      &#10060; A, B, D = savoir-faire très spécifiques à un contexte particulier.<br><br>
+      &#9881; <strong>L'Engrenage du Savoir-Faire vous appartient !</strong>
+    </div>
+    <div class="feedback" id="fb-incorrect">
+      &#10060; <strong>Pas tout à fait...</strong> Un savoir-faire <strong>transférable</strong> est celui qu'on peut utiliser dans n'importe quel emploi, peu importe le secteur. Lequel fonctionne partout ?
+    </div>
+  </div>
+</div>
+
+<!-- VRAI/FAUX -->
+<div class="panel" id="panel-vraifaux">
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Un savoir-faire s'acquiert uniquement par la pratique, jamais par la formation théorique."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf2a',false)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf2a',true)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf2a">&#10004; <strong>FAUX !</strong> Le savoir-faire s'acquiert par la pratique ET par la formation. Par exemple, apprendre à rédiger un rapport se fait en pratiquant, mais aussi en suivant une formation à l'écrit professionnel.</div>
+  </div>
+
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Savoir négocier avec un client est un savoir-faire relationnel."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf2b',true)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf2b',false)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf2b">&#10004; <strong>VRAI !</strong> La négociation est bien un savoir-faire relationnel : c'est une compétence qui implique de savoir interagir, convaincre et trouver des compromis avec d'autres personnes.</div>
+  </div>
+
+  <div class="vf-question">
+    <div class="vf-texte">&#10067; "Un savoir-faire technique ne peut jamais être transféré dans un autre secteur."</div>
+    <div class="vf-btns">
+      <button class="vf-btn vf-vrai" onclick="repondreVF(this,'vf2c',false)">&#9989; VRAI</button>
+      <button class="vf-btn vf-faux" onclick="repondreVF(this,'vf2c',true)">&#10060; FAUX</button>
+    </div>
+    <div class="vf-feedback" id="vf2c">&#10004; <strong>FAUX !</strong> Certaines techniques s'appliquent dans plusieurs secteurs. Par exemple, maîtriser Excel est utile dans la comptabilité, la logistique, les RH, la vente... C'est un savoir-faire technique ET transférable !</div>
+  </div>
+</div>
+
+<!-- PORTAIL -->
+<div class="panel" id="panel-porte">
+  <div class="porte">
+    <span class="porte-icon">&#128161;</span>
+    <div class="porte-titre">PORTAIL — AN 2150</div>
+    <div class="porte-texte">Le portail vers l'Agence de l'Avenir s'ouvre.<br>Préparez-vous à voyager en l'AN 2150.<br><br>Votre prochaine mission : récupérer le <strong>Cristal du Savoir-Être</strong>.</div>
+    <button class="porte-btn" onclick="alert('Dans H5P Virtual Tour : utilisez un hotspot Go to Scene pointant vers votre Scène 3 (Agence Futuriste)')">
+      &#9658; VOYAGER EN 2150
+    </button>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+function toggleFC(el) {
+  el.querySelector('.fc-r').classList.toggle('visible');
+}
+
+// APPARIEMENT
+let selectedAction = null;
+let matches = {};
+function selectAction(el) {
+  document.querySelectorAll('.action-item').forEach(a => a.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAction = el;
+}
+function matchType(el) {
+  if (!selectedAction) { alert('Cliquez d\'abord sur une action !'); return; }
+  const type = el.dataset.type;
+  const correct = selectedAction.dataset.correct;
+  matches[correct] = type;
+  selectedAction.style.opacity = '0.6';
+  selectedAction.style.pointerEvents = 'none';
+  el.style.opacity = '0.6';
+  el.style.pointerEvents = 'none';
+  selectedAction.classList.remove('selected');
+  selectedAction = null;
+}
+function verifierAppariement() {
+  const correct = { technique:'technique', relationnel:'relationnel', transferable:'transferable', specifique:'specifique' };
+  let score = 0;
+  for (let k in correct) { if (matches[k] === correct[k]) score++; }
+  const fb = document.getElementById('app-feedback');
+  if (score === 4) {
+    fb.className = 'app-feedback ok';
+    fb.innerHTML = '&#127775; <strong>Parfait !</strong> Toutes les associations sont correctes ! Vous maîtrisez les types de savoir-faire.';
+    document.getElementById('artefact2').classList.add('visible');
+  } else {
+    fb.className = 'app-feedback ko';
+    fb.innerHTML = '&#10060; ' + score + '/4 correct(s). Relisez les flashcards et réessayez ! Pensez : technique = outil spécifique, relationnel = interaction humaine, transférable = applicable partout.';
+    Object.keys(matches).forEach(k => { matches = {}; });
+    document.querySelectorAll('.action-item,.type-item').forEach(el => { el.style.opacity=''; el.style.pointerEvents=''; el.classList.remove('matched-ok','matched-ko'); });
+  }
+}
+
+let qcmDone = false;
+function repondreQCM(el, correct) {
+  if (qcmDone) return;
+  qcmDone = true;
+  document.querySelectorAll('.choix').forEach(c => c.style.pointerEvents = 'none');
+  if (correct) {
+    el.classList.add('correct');
+    document.getElementById('fb-correct').classList.add('correct');
+    document.getElementById('artefact2').classList.add('visible');
+  } else {
+    el.classList.add('incorrect');
+    document.getElementById('fb-incorrect').classList.add('incorrect');
+    setTimeout(() => { qcmDone=false; document.querySelectorAll('.choix').forEach(c=>{c.style.pointerEvents='';c.classList.remove('correct','incorrect');}); document.getElementById('fb-incorrect').classList.remove('incorrect'); }, 2500);
+  }
+}
+
+function repondreVF(btn, id, correct) {
+  const fb = document.getElementById(id);
+  const parent = btn.closest('.vf-question');
+  parent.querySelectorAll('.vf-btn').forEach(b => b.disabled = true);
+  if (correct) {
+    fb.classList.add('ok'); btn.style.background='rgba(80,200,120,0.2)';
+  } else {
+    fb.classList.add('ko'); btn.style.background='rgba(255,68,68,0.15)';
+    setTimeout(()=>{ fb.classList.remove('ko'); parent.querySelectorAll('.vf-btn').forEach(b=>{b.disabled=false;b.style.background='';}); }, 2500);
+  }
+}
+</script>
+</body>
+</html>
